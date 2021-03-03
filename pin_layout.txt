@@ -1,0 +1,3 @@
+Encoder 1:
+OUTA -> PA0 -> TIM5_CH1
+OUTB -> PA1 -> TIM5_CH2
