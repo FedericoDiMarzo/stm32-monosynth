@@ -1,7 +1,5 @@
 
-Welcome to the Miosix kernel
-============================
+# Introduction
 
-You can find information on how to configure and use the kernel
-at the following url: http://miosix.org
+Monophonic synth based on STM32F407VG board running a modified version of Miosix with added audio capabilities.
 
