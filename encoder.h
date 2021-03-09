@@ -5,14 +5,11 @@
 
 #include "miosix.h"
 
-
 class Encoder {
 public:
 
-    Encoder(GPIO_TypeDef *gpio = GPIOB, unsigned int pin1 = 4, unsigned int pin2 = 5,
-            TIM_TypeDef *timer = TIM3);
+    Encoder(TIM_TypeDef* timer, GPIO_TypeDef* gpio, uint32_t pin1, uint32_t pin2);
 
-    static void testStaticRotary();
 
     /**
      * Getter for value attribute.
@@ -22,7 +19,7 @@ public:
     float getValue();
 
 private:
-    TIM_TypeDef *_timer;
+    TIM_TypeDef *timer;
 
     /**
      * Value of the encoder, between 0 and 1.
