@@ -5,13 +5,13 @@
 
 using namespace miosix;
 
-Encoder::Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint32_t pin1, uint32_t pin2) :
+Encoder::Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t pin2) :
         timer(timer),
         value(0.0f),
         sensitivity(1.0f) {
 
-    uint32_t alternateFunPin1 = CoreUtil::gpioGetTimerAF(gpio, pin1);
-    uint32_t alternateFunPin2 = CoreUtil::gpioGetTimerAF(gpio, pin2);
+    uint8_t alternateFunPin1 = CoreUtil::gpioGetTimerAF(gpio, pin1);
+    uint8_t alternateFunPin2 = CoreUtil::gpioGetTimerAF(gpio, pin2);
     if ((alternateFunPin1 == INVALID_AF) | (alternateFunPin2 == INVALID_AF)) {
         return; // TODO: error handling
     }

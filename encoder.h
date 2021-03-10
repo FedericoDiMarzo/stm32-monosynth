@@ -10,7 +10,7 @@
 class Encoder {
 public:
 
-    Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint32_t pin1, uint32_t pin2);
+    Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t pin2);
 
 
     /**
