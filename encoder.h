@@ -5,10 +5,12 @@
 
 #include "miosix.h"
 
+#define SENSITIVITY_OFFSET (1500.0f)
+
 class Encoder {
 public:
 
-    Encoder(TIM_TypeDef* timer, GPIO_TypeDef* gpio, uint32_t pin1, uint32_t pin2);
+    Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint32_t pin1, uint32_t pin2);
 
 
     /**
@@ -18,6 +20,10 @@ public:
      */
     float getValue();
 
+    inline float getSensitivity() { return sensitivity; };
+
+    inline void setSensitivity(float newValue) { sensitivity = newValue; };
+
 private:
     TIM_TypeDef *timer;
 
@@ -26,10 +32,9 @@ private:
      */
     float value;
 
-    /**
-     * Value from the last getValue() call.
-     */
-    float lastValue;
+    const uint32_t arrValue = 0xFFFF - 1;
+
+    float sensitivity;
 
 };
 
