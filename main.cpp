@@ -45,13 +45,15 @@ int main() {
     audioDriver.init(SampleRate::_44100Hz);
 
     // setting the encoder1
-    Encoder encoder1(TIM4, GPIOD, 12, 13);
-    Encoder encoder2(TIM8, GPIOC, 6, 7);
+//    Encoder encoder1(TIM4, GPIOD, 12, 13);
+//    Encoder encoder2(TIM1, GPIOE, 9, 11);
+    Encoder encoder3(TIM3, GPIOB, 4, 5);
 
     // infinite loop
     for (;;) {
-        encoder1.getValue();
-        encoder2.getValue();
+//        encoder1.getValue();
+//        encoder2.getValue();
+        encoder3.getValue();
         sleep(0.1);
     }
 
