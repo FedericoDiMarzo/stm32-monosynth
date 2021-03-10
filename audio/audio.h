@@ -16,14 +16,19 @@
 #define DAC_BIT_DEPTH 12
 #define DAC_MAX_VALUE 4096
 
+/**
+ * This singleton class offers an interface to the low level audio
+ * functionalities of the system.
+ * It allows to set an AudioProcessable object to be called as a callback
+ * to handle the audio processing.
+ */
 class AudioDriver {
 public:
-
 
     /**
      * Gets an instance of the AudioDriver singleton.
      *
-     * @return AudioDriver singletor
+     * @return AudioDriver singleton
      */
     static AudioDriver &getInstance();
 
@@ -66,10 +71,8 @@ public:
      * Getter method for the sampleRate.
      *
      * @return sampleRate
-     *
-     * //TODO: change from double to float
      */
-    inline double getSampleRate() const { return sampleRate; };
+    inline float getSampleRate() const { return sampleRate; };
 
     /**
      * Destructor.
@@ -83,12 +86,12 @@ private:
     AudioBuffer<float, 2, AUDIO_DRIVER_BUFFER_SIZE> audioBuffer;
 
     /**
-     * Left channel buffer, used to convert the float audioBuffer in uint_16
+     * Left channel buffer, used to convert the float audioBuffer in uint_16.
      */
     uint16_t *_bufferLeft;
 
     /**
-    * Left channel buffer, used to convert the float audioBuffer in uint_16
+    * Left channel buffer, used to convert the float audioBuffer in uint_16.
     */
     uint16_t *_bufferRight;
 
@@ -98,13 +101,13 @@ private:
     unsigned int bufferSize;
 
     /**
-     *
+     * Sample rate of the DAC conversion.
      */
-    double sampleRate;
+    float sampleRate;
 
     /**
      * Instance of an AudioProcessable used as a callback
-     * to process the buffer
+     * to process the buffer.
      */
     AudioProcessable *audioProcessable;
 

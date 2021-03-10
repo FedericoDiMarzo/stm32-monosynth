@@ -1,13 +1,12 @@
 
 #include "miosix.h"
-#include "audio.h"
-#include "audio_processor.h"
+#include "audio/audio.h"
+#include "audio/audio_processor.h"
+#include "audio/audio_buffer.h"
 #include "encoder.h"
-#include "audio_buffer.h"
 #include <functional>
 #include <math.h>
 #include <cstdint>
-
 
 using namespace miosix;
 using namespace std;
@@ -22,9 +21,8 @@ public:
 
     }
 
-
     void process() override {
-        auto &buffer = getBuffer();
+        auto& buffer = getBuffer();
         auto leftChannel = buffer.getWritePointer(0);
         for (unsigned int i = 0; i < getBufferSize(); ++i) {
             leftChannel[i] = sinTable[i];
@@ -42,18 +40,14 @@ int main() {
     AudioDriver &audioDriver = AudioDriver::getInstance();
     audioDriver.getBuffer();
     audioDriver.setAudioProcessable(audioProcessorTest);
-    audioDriver.init(SampleRate::_44100Hz);
+    audioDriver.init(SampleRate::_32000Hz);
 
-    // setting the encoder1
-//    Encoder encoder1(TIM4, GPIOD, 12, 13);
-//    Encoder encoder2(TIM1, GPIOE, 9, 11);
-    Encoder encoder3(TIM3, GPIOB, 4, 5);
+    // encoder
+    Encoder encoder1(TIM4, GPIOD, 12, 13);
 
     // infinite loop
     for (;;) {
-//        encoder1.getValue();
-//        encoder2.getValue();
-        encoder3.getValue();
+        encoder1.getValue();
         sleep(0.1);
     }
 
