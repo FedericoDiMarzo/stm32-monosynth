@@ -70,45 +70,44 @@ uint32_t CoreUtil::gpioGetTimerAF(GPIO_TypeDef *gpio, uint32_t pin) {
     // TODO: test all states
     uint32_t af = INVALID_AF;
     if (gpio == GPIOA) {
-        if (pin == 0) { // TIM5 CH1
+        if (pin == 0) { // TIM5 CH1 (tested in CubeIde)
             af = 4;
-        } else if (pin == 1) { // TIM5 CH2
+        } else if (pin == 1) { // TIM5 CH2 (tested in CubeIde)
             af = 4;
-        } else if (pin == 2) { // TIM9 CH1
+        } else if (pin == 8) { // TIM1 CH1 (tested in CubeIde) !!!
             af = 2;
-        } else if (pin == 3) { // TIM9 CH2
-            af = 2;
-        } else if (pin == 8) { // TIM1 CH1
-            af = 2;
-        } else if (pin == 9) { // TIM1 CH2
+        } else if (pin == 9) { // TIM1 CH2 (tested in CubeIde) !!!
             af = 1;
         }
     } else if (gpio == GPIOB) {
-        if (pin == 4) { // TIM3 CH1
+        if (pin == 4) { // TIM3 CH1 (tested in CubeIde)
             af = 2;
         } else if (pin == 5) { // TIM3 CH2
             af = 4;
         } else if (pin == 6) { // TIM4 CH1
             af = 1;
-        } else if (pin == 7) { // TIM3 CH2
-            af = 4;
-        } else if (pin == 14) { // TIM12 CH1
-            af = 2;
-        } else if (pin == 15) { // TIM12 CH2
+        } else if (pin == 7) { // TIM4 CH2
             af = 4;
         }
     } else if (gpio == GPIOC) {
-        if (pin == 6) { // TIM8 CH1
+        if (pin == 6) { // TIM8 CH1 !!!
             af = 1;
-        } else if (pin == 7) { // TIM8 CH2
+        } else if (pin == 7) { // TIM8 CH2 !!!
             af = 1;
         }
     } else if (gpio == GPIOD) {
-        if (pin == 12) { // TIM4 CH1
+        if (pin == 12) { // TIM4 CH1 (tested in Clion)
             af = 2;
-        } else if (pin == 13) { // TIM4 CH2
+        } else if (pin == 13) { // TIM4 CH2 (tested in Clion)
             af = 2;
         }
+    } else if (gpio == GPIOE) {
+        if (pin == 9) { // TIM1 CH1 (tested in Clion)
+            af = 1;
+        } else if (pin == 11) { // TIM1 CH2 (tested in Clion)
+            af = 1;
+        }
+
     }
 
     // TODO: complete the list
