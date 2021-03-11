@@ -1,9 +1,10 @@
 
 #ifndef STM32_MONOSYNTH_CORE_UTIL_H
 #define STM32_MONOSYNTH_CORE_UTIL_H
-
 #include "miosix.h"
+
 #define INVALID_AF 0xf
+#define CLOCK_FREQ 168000000
 
 namespace CoreUtil {
     void rccEnableGpio(GPIO_TypeDef *gpio);

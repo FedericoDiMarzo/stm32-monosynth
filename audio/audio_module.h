@@ -6,11 +6,25 @@
 #include "audio.h"
 #include "audio_buffer.h"
 
-template <size_t CHANNEL_NUM>
+template<size_t CHANNEL_NUM>
 class AudioModule {
 public:
+
+    /**
+     * Constructor.
+     */
+    AudioModule() {};
+
+    /**
+     * Precess an external AudioBuffer.
+     *
+     * An implementation of an AudioModule must implement this
+     * virtual method.
+     *
+     * @param buffer AudioBuffer to be processed
+     */
     virtual void process(AudioBuffer<float, CHANNEL_NUM, AUDIO_DRIVER_BUFFER_SIZE> &buffer) = 0;
-    virtual AudioBuffer<float, CHANNEL_NUM, AUDIO_DRIVER_BUFFER_SIZE> &process() = 0;
+
 
 private:
     /**
