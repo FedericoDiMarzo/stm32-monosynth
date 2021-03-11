@@ -7,6 +7,7 @@
 #include "audio_processors/mono_synth.h"
 #include "drivers/SSD1306.h"
 #include "audio/cs43l22dac.h"
+#include "audio/audio_math.h"
 #include <functional>
 #include <math.h>
 #include <cstdint>
@@ -39,6 +40,7 @@ int main() {
     audioDriver.init(SampleRate::_44100Hz);
     Cs43l22dac::setVolume(-22);
 
+
     AudioProcessorTest audioProcessorTest;
     MonoSynth monoSynth;
 
@@ -51,10 +53,6 @@ int main() {
 //    Encoder encoder1(TIM4, GPIOD, 12, 13);
 
     // display test
-//    Ssd1306::init();
-
-    uint32_t time = 500;
-    // infinite loop
     monoSynth.setFrequency(220);
     for (;;) {
 //        monoSynth.setFrequency(700);

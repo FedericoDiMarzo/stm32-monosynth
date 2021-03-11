@@ -18,7 +18,6 @@ SUBDIRS := $(KPATH)
 ##
 ## List here your source files (both .s, .c and .cpp)
 ##
-
 SRC := main.cpp \
 audio/audio.cpp audio/cs43l22dac.cpp audio/audio_processor.cpp \
 audio_modules/virtual_analog_oscillator.cpp audio_processors/mono_synth.cpp \
