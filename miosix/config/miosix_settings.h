@@ -85,12 +85,12 @@ namespace miosix {
 /// \def WITH_FILESYSTEM
 /// Allows to enable/disable filesystem support to save code size
 /// By default it is defined (filesystem support is enabled)
-//#define WITH_FILESYSTEM
+#define WITH_FILESYSTEM
 
 /// \def WITH_DEVFS
 /// Allows to enable/disable DevFs support to save code size
 /// By default it is defined (DevFs is enabled)
-//#define WITH_DEVFS
+#define WITH_DEVFS
     
 /// \def SYNC_AFTER_WRITE
 /// Increases filesystem write robustness. After each write operation the
