@@ -19,10 +19,19 @@ SUBDIRS := $(KPATH)
 ## List here your source files (both .s, .c and .cpp)
 ##
 SRC := main.cpp \
-audio/audio.cpp audio/cs43l22dac.cpp audio/audio_processor.cpp \
-audio_modules/virtual_analog_oscillator.cpp audio_processors/mono_synth.cpp \
-drivers/encoder.cpp drivers/core_util.cpp drivers/SSD1306.cpp \
-u8g2/u8g2_bitmap.c u8g2/u8g2_box.c u8g2/u8g2_buffer.c u8g2/u8g2_circle.c u8g2/u8g2_cleardisplay.c \
+audio/audio.cpp \
+audio/cs43l22dac.cpp \
+audio/audio_processor.cpp \
+audio_modules/virtual_analog_oscillator.cpp \
+audio_processors/mono_synth.cpp \
+drivers/encoder.cpp \
+drivers/core_util.cpp \
+drivers/SSD1306.cpp \
+audio/midiXparser.cpp \
+audio/midi.cpp \
+
+# U8g2 library source files
+U8G2_SRC := u8g2/u8g2_bitmap.c u8g2/u8g2_box.c u8g2/u8g2_buffer.c u8g2/u8g2_circle.c u8g2/u8g2_cleardisplay.c \
 u8g2/u8g2_d_memory.c u8g2/u8g2_d_setup.c u8g2/u8g2_font.c u8g2/u8g2_hvline.c \
 u8g2/u8g2_input_value.c u8g2/u8g2_intersection.c u8g2/u8g2_kerning.c u8g2/u8g2_line.c u8g2/u8g2_ll_hvline.c \
 u8g2/u8g2_message.c u8g2/u8g2_polygon.c u8g2/u8g2_selection_list.c u8g2/u8g2_setup.c u8g2/u8log.c \
@@ -31,6 +40,8 @@ u8g2/u8x8_d_a2printer.c u8g2/u8x8_d_ssd1306_128x32.c u8g2/u8x8_debounce.c u8g2/u
 u8g2/u8x8_gpio.c u8g2/u8x8_input_value.c u8g2/u8x8_message.c u8g2/u8x8_selection_list.c \
 u8g2/u8x8_setup.c u8g2/u8x8_string.c u8g2/u8x8_u8toa.c u8g2/u8x8_u16toa.c \
 u8g2/u8x8_fonts.c u8g2/u8g2_fonts.c
+
+SRC += $(U8G2_SRC)
 
 
 ##
