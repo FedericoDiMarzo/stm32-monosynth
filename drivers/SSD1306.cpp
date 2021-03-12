@@ -1,8 +1,8 @@
 
 
+#include "miosix.h"
 #include "SSD1306.h"
 #include "../u8g2/u8g2.h"
-#include "miosix.h"
 #include "../drivers/core_util.h"
 #include "../miosix/util/software_i2c.h"
 
@@ -165,10 +165,12 @@ void testScreen() {
  * Function used to setup the display pins and i2c
  */
 void setupGpioDisplay() {
+    miosix::FastInterruptDisableLock dLock;
+
     CoreUtil::rccEnableGpio(DISPLAY_GPIO);
     CoreUtil::rccEnableI2c(DISPLAY_I2C);
-    uint8_t sdaAf = CoreUtil::getGpioI2cAf(DISPLAY_GPIO, DISPLAY_SDA_PIN);
     uint8_t sclAf = CoreUtil::getGpioI2cAf(DISPLAY_GPIO, DISPLAY_SCL_PIN);
+    uint8_t sdaAf = CoreUtil::getGpioI2cAf(DISPLAY_GPIO, DISPLAY_SDA_PIN);
 
     i2c::init();
     sda::alternateFunction(sdaAf);
