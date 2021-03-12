@@ -85,15 +85,15 @@ uint8_t CoreUtil::getGpioTimerAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     uint8_t af = INVALID_AF; // default fallback
 
     if (gpio == GPIOA) {
-        if (pin == 0) { // TIM5 CH1
-            af = 2;
-        } else if (pin == 1) { // TIM5 CH2
-            af = 2;
+        if (pin == 0) { // TIM2 CH1
+            af = 1;
+        } else if (pin == 1) { // TIM2 CH2
+            af = 1;
         } else if (pin == 2) { // TIM9 CH1
             af = 3;
         } else if (pin == 3) { // TIM9 CH2
             af = 3;
-        } else if (pin == 6) { // TIM3 CH1
+        } else if (pin == 6) { // TIM3 CH1 !!!
             af = 2;
         } else if (pin == 7) { // TIM3 CH2
             af = 2;
@@ -142,9 +142,9 @@ uint8_t CoreUtil::getGpioTimerAf(const GPIO_TypeDef *gpio, uint8_t pin) {
         } else if (pin == 6) { // TIM9 CH2
             af = 3;
         } else if (pin == 9) { // TIM1 CH1
-            af = 2;
+            af = 1;
         } else if (pin == 11) { // TIM1 CH2
-            af = 2;
+            af = 1;
         }
 
     } else if (gpio == GPIOH) {
