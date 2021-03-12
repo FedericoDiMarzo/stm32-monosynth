@@ -10,11 +10,8 @@ Encoder::Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t p
         value(0.0f),
         sensitivity(1.0f) {
 
-    uint8_t alternateFunPin1 = CoreUtil::gpioGetTimerAF(gpio, pin1);
-    uint8_t alternateFunPin2 = CoreUtil::gpioGetTimerAF(gpio, pin2);
-    if ((alternateFunPin1 == INVALID_AF) | (alternateFunPin2 == INVALID_AF)) {
-        return; // TODO: error handling
-    }
+    uint8_t alternateFunPin1 = CoreUtil::getGpioTimerAf(gpio, pin1);
+    uint8_t alternateFunPin2 = CoreUtil::getGpioTimerAf(gpio, pin2);
 
     int filterOrder = 8;
     int flagAFR1 = (pin1 < 8) ? 0 : 1;
