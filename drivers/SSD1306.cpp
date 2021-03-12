@@ -19,32 +19,13 @@ typedef miosix::Gpio<DISPLAY_GPIO_BASE, DISPLAY_SDA_PIN> sda;
 /**
  * I2c interface.
  */
-typedef miosix::SoftwareI2C <sda, scl> i2c;
+typedef miosix::SoftwareI2C<sda, scl> i2c;
 
 /**
- * U8g2 display library.
- * https://github.com/olikraus/u8g2
+ * U8g2 display library object.
  */
 static u8g2_t u8g2;
 
-/**
- * Function used to setup the display pins
- */
-void setupGpioDisplay() {
-    CoreUtil::rccEnableGpio(DISPLAY_GPIO);
-    i2c::init();
-}
-
-// TODO: does it work??
-void delay5Ns(int n) {
-    static_assert(CLOCK_FREQ == 168000000, "The clock frequency must be 168Mhz for delay5Ns() function");
-    volatile int i;
-    int j=0;
-    for(i=0;i<n;i++)
-    {
-        j++;
-    }
-}
 
 /**
  * This function is used to implement HAL interface needed by the u8g2 library.
@@ -60,12 +41,11 @@ uint8_t u8x8_gpio_and_delay_implementation(u8x8_t *u8x8, uint8_t msg, uint8_t ar
     float dlyUs;
     switch (msg) {
         case U8X8_MSG_GPIO_AND_DELAY_INIT:    // called once during init phase of u8g2/u8x8
-            setupGpioDisplay();
             break;                            // can be used to setup pins
         case U8X8_MSG_DELAY_NANO:            // delay arg_int * 1 nano second
             break;
         case U8X8_MSG_DELAY_100NANO:        // delay arg_int * 100 nano seconds
-            delay5Ns(arg_int * 25);
+            break;
         case U8X8_MSG_DELAY_10MICRO:        // delay arg_int * 10 micro seconds
             miosix::delayUs(10 * arg_int);
             break;
@@ -79,11 +59,9 @@ uint8_t u8x8_gpio_and_delay_implementation(u8x8_t *u8x8, uint8_t msg, uint8_t ar
             miosix::delayUs(static_cast<int>(dlyUs));
             break;
         case U8X8_MSG_GPIO_D0:                // D0 or SPI clock pin: Output level in arg_int
-            //case U8X8_MSG_GPIO_SPI_CLOCK:
-            break;
+            break;                            //case U8X8_MSG_GPIO_SPI_CLOCK:
         case U8X8_MSG_GPIO_D1:                // D1 or SPI data pin: Output level in arg_int
-            //case U8X8_MSG_GPIO_SPI_DATA:
-            break;
+            break;                            //case U8X8_MSG_GPIO_SPI_DATA:
         case U8X8_MSG_GPIO_D2:                // D2 pin: Output level in arg_int
             break;
         case U8X8_MSG_GPIO_D3:                // D3 pin: Output level in arg_int
@@ -109,29 +87,8 @@ uint8_t u8x8_gpio_and_delay_implementation(u8x8_t *u8x8, uint8_t msg, uint8_t ar
         case U8X8_MSG_GPIO_CS2:                // CS2 (chip select) pin: Output level in arg_int
             break;
         case U8X8_MSG_GPIO_I2C_CLOCK:
-            if (arg_int == 0) {
-                // arg_int=0: Output low at I2C clock pin
-                scl::mode(miosix::Mode::OUTPUT);
-                scl::low();
-            } else if (arg_int == 1) {
-                // arg_int=1: Input dir with pullup high for I2C clock pin
-                scl::mode(miosix::Mode::INPUT);
-                DISPLAY_GPIO->PUPDR &= ~(3 << DISPLAY_SCL_PIN);
-                DISPLAY_GPIO->PUPDR |= 1 << DISPLAY_SCL_PIN;
-            }
             break;
         case U8X8_MSG_GPIO_I2C_DATA:
-            if (arg_int == 0) {
-                // arg_int=0: Output low at I2C data pin
-                sda::mode(miosix::Mode::OUTPUT);
-                sda::low();
-            } else if (arg_int == 1) {
-                // arg_int=1: Input dir with pullup high for I2C data pin
-                sda::mode(miosix::Mode::INPUT);
-                DISPLAY_GPIO->PUPDR &= ~(3 << DISPLAY_SDA_PIN);
-                DISPLAY_GPIO->PUPDR |= 1 << DISPLAY_SDA_PIN;
-            }
-
             break;
         case U8X8_MSG_GPIO_MENU_SELECT:
             u8x8_SetGPIOResult(u8x8, /* get menu select pin state */ 0);
@@ -162,10 +119,8 @@ uint8_t u8x8_gpio_and_delay_implementation(u8x8_t *u8x8, uint8_t msg, uint8_t ar
  * @param arg_ptr
  * @return
  */
-uint8_t u8x8_byte_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
+uint8_t u8x8_byte_hw_i2c_implementation(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
     //  u8g2/u8x8 will never send more than 32 bytes between START_TRANSFER and END_TRANSFER
-//    static uint8_t buffer[32];
-//    static uint8_t buf_idx;
     uint8_t *data;
 
     switch (msg) {
@@ -186,7 +141,6 @@ uint8_t u8x8_byte_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
             /* ignored for i2c */
             break;
         case U8X8_MSG_BYTE_START_TRANSFER:
-            i2c::init();
             i2c::sendStart();
             break;
         case U8X8_MSG_BYTE_END_TRANSFER:
@@ -200,17 +154,32 @@ uint8_t u8x8_byte_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 
 void testScreen() {
     u8g2_FirstPage(&u8g2);
-    while (true) {
+    do {
         u8g2_SetFont(&u8g2, u8g2_font_ncenB14_tr);
-        u8g2_DrawStr(&u8g2, 0, 15, "Hello World!");
-//        u8g2_DrawCircle(&u8g2, 16, 64, 10, U8G2_DRAW_ALL);
-    }
+        u8g2_DrawStr(&u8g2, 0, 24, "Hi World!");
+        u8g2_SendBuffer(&u8g2);
+    } while (u8g2_NextPage(&u8g2));
+}
+
+/**
+ * Function used to setup the display pins and i2c
+ */
+void setupGpioDisplay() {
+    CoreUtil::rccEnableGpio(DISPLAY_GPIO);
+    CoreUtil::rccEnableI2c(DISPLAY_I2C);
+    uint8_t sdaAf = CoreUtil::getGpioI2cAf(DISPLAY_GPIO, DISPLAY_SDA_PIN);
+    uint8_t sclAf = CoreUtil::getGpioI2cAf(DISPLAY_GPIO, DISPLAY_SCL_PIN);
+
+    i2c::init();
+    sda::alternateFunction(sdaAf);
+    scl::alternateFunction(sclAf);
 }
 
 void Ssd1306::init() {
-    u8g2_Setup_ssd1306_i2c_128x32_winstar_1(&u8g2, U8G2_R0, u8x8_byte_i2c, u8x8_gpio_and_delay_implementation);
+    setupGpioDisplay();
+    u8g2_Setup_ssd1306_i2c_128x32_winstar_1(&u8g2, U8G2_R0, u8x8_byte_hw_i2c_implementation,
+                                            u8x8_gpio_and_delay_implementation);
     u8g2_InitDisplay(&u8g2);
     u8g2_SetPowerSave(&u8g2, 0);
-
-//    testScreen();
+    testScreen();
 }

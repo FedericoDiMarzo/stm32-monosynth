@@ -5,11 +5,16 @@
 #include "miosix.h"
 #include "../u8g2/u8g2.h"
 
-#define DISPLAY_SCL_PIN 12
-#define DISPLAY_SDA_PIN 13
-#define DISPLAY_GPIO GPIOD
-#define DISPLAY_GPIO_BASE GPIOD_BASE
+#define DISPLAY_SCL_PIN 10
+#define DISPLAY_SDA_PIN 11
+#define DISPLAY_GPIO GPIOB
+#define DISPLAY_GPIO_BASE GPIOB_BASE
+#define DISPLAY_I2C I2C2
 
+/**
+ * Drivers for ssd1306 display, based on the library U8g2lib
+ * https://github.com/olikraus/u8g2
+ */
 class Ssd1306 {
 public:
     Ssd1306() = delete;
