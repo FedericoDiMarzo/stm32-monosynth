@@ -56,7 +56,10 @@ float Encoder::getValue() {
              * sensitivity * SENSITIVITY_OFFSET;
     value = (value < 0.0f) ? 0.0f : value;
     value = (value > 1.0f) ? 1.0f : value;
-    timer->CNT = arrValue / 2;
+    {
+        miosix::FastInterruptDisableLock dLock;
+        timer->CNT = arrValue / 2;
+    }
     return value;
 }
 
