@@ -11,18 +11,22 @@
 #include "audio/midi.h"
 #include "tests/midi_test_data.h"
 #include <functional>
+#include <vector>
 #include <algorithm>
-#include <math.h>
 #include <cstdint>
+#include <array>
+#include <cmath>
+#include <thread>
+#include <memory>
 
 
-int main() {
+void task1() {
 
     // initializing the audio driver
     AudioDriver &audioDriver = AudioDriver::getInstance();
     audioDriver.getBuffer();
     audioDriver.init(SampleRate::_44100Hz);
-    Cs43l22dac::setVolume(-20);
+    float volume = audioDriver.getVolume();
     MonoSynth monoSynth;
     audioDriver.setAudioProcessable(monoSynth);
 
@@ -31,7 +35,7 @@ int main() {
     Midi::Parser parser;
     parser.maskChannel(2);
     while (p != std::end(noteTest)) {
-        parser.parse(p);
+
     }
 
     // encoder
@@ -40,22 +44,35 @@ int main() {
     Encoder encoder3(TIM3, GPIOB, 4, 5);
     Encoder encoder4(TIM4, GPIOD, 12, 13);
 
+    float sensitivity = 0.5;
+    encoder1.setSensitivity(sensitivity);
+    encoder2.setSensitivity(sensitivity);
+    encoder3.setSensitivity(sensitivity);
+    encoder4.setSensitivity(sensitivity);
+
+
     // display test
 //    Ssd1306::init();
 
     // main loop
-    volatile float value1 = 0;
-    volatile float value2 = 0;
-    volatile float value3 = 0;
-    volatile float value4 = 0;
+    volatile float noteChangeTime = 1000.0;
+    volatile float glideTime = 0.005;
+    float frequencies[] = {50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 650, 700, 750, 800};
+    encoder1.setValue(0.5);
     while (true) {
-        value1 = encoder1.getValue();
-        value2 = encoder2.getValue();
-        value3 = encoder3.getValue();
-        value4 = encoder4.getValue();
-        sleep(0.2);
-
-        monoSynth.setFrequency(AudioMath::linearMap(value1, 0, 1, 60, 1200));
+        for (auto n : midiNotesValuesInAEolian) {
+            noteChangeTime = AudioMath::linearMap(encoder1.getValue(), 0, 1, 600, 20);
+            glideTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.005, 0.5);
+            monoSynth.setNote(n);
+            monoSynth.setGlide(glideTime);
+            audioDriver.setVolume(encoder3.getValue());
+            miosix::Thread::sleep(noteChangeTime);
+        }
     }
 
+}
+
+int main() {
+    std::thread task1Thread(task1);
+    task1Thread.join();
 }
