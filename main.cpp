@@ -22,14 +22,15 @@
 
 
 MonoSynth monoSynth;
-
+Button button1(GPIOA, 2);
+Encoder encoder1(TIM2, GPIOA, 0, 1);
+Encoder encoder2(TIM1, GPIOE, 9, 11);
+Encoder encoder3(TIM3, GPIOB, 4, 5);
+Encoder encoder4(TIM4, GPIOD, 12, 13);
 
 void encoderThread() {
     // encoder
-    Encoder encoder1(TIM2, GPIOA, 0, 1);
-    Encoder encoder2(TIM1, GPIOE, 9, 11);
-    Encoder encoder3(TIM3, GPIOB, 4, 5);
-    Encoder encoder4(TIM4, GPIOD, 12, 13);
+
 
     float sensitivity = 0.5;
     encoder1.setSensitivity(sensitivity);
@@ -49,7 +50,9 @@ void encoderThread() {
             {
                 miosix::FastMutex mutex;
                 monoSynth.setNote(n);
-                monoSynth.setGlide(glideTime);
+                if (button1.isPressed()) {
+                    monoSynth.setGlide(glideTime);
+                }
             }
             miosix::Thread::sleep(noteChangeTime);
         }
@@ -57,12 +60,9 @@ void encoderThread() {
 }
 
 void buttonThread() {
-    Button button1(GPIOA, 2);
+
     volatile bool button1State = false;
     static int button1Counter = 0;
-    button1.setCallback([]() {
-        button1Counter++;
-    });
 
     // button loop
     while (true) {
@@ -89,8 +89,8 @@ int main() {
     audioDriver.setAudioProcessable(monoSynth);
 
     // starting the threads
-//    std::thread task1Thread(encoderThread);
+    std::thread task1Thread(encoderThread);
     std::thread task2Thread(buttonThread);
-//    task1Thread.join();
+    task1Thread.join();
     task2Thread.join();
 }
