@@ -16,6 +16,10 @@ public:
 
     void setFrequency(float f);
 
+    void setGlide(float glideTime);
+
+    void setNote(uint8_t midiNote);
+
 private:
     VirtualAnalogOscillator virtualAnalogOscillator;
 

@@ -19,16 +19,27 @@
 #include <thread>
 #include <memory>
 
+// testing an implementation of an AudioProcessor
+class AudioProcessorTest : public AudioProcessor {
+public:
+    AudioProcessorTest() {
+        for (int i = 0; i < AUDIO_DRIVER_BUFFER_SIZE; ++i) {
+            sinTable[i] = sin(2 * 3.14 * i / AUDIO_DRIVER_BUFFER_SIZE);
+        }
+    }
+
+    void process() override {
+        auto &buffer = getBuffer();
+        auto leftChannel = buffer.getWritePointer(0);
+        for (unsigned int i = 0; i < getBufferSize(); ++i) {
+            leftChannel[i] = sinTable[i];
+        }
+    }
+
+    float sinTable[AUDIO_DRIVER_BUFFER_SIZE];
+};
 
 void task1() {
-
-    // initializing the audio driver
-    AudioDriver &audioDriver = AudioDriver::getInstance();
-    audioDriver.getBuffer();
-    audioDriver.init(SampleRate::_44100Hz);
-    float volume = audioDriver.getVolume();
-    MonoSynth monoSynth;
-    audioDriver.setAudioProcessable(monoSynth);
 
     // midi test
     uint8_t *p = noteTest;
@@ -37,6 +48,15 @@ void task1() {
     while (p != std::end(noteTest)) {
 
     }
+
+    // initializing the audio driver
+    AudioDriver &audioDriver = AudioDriver::getInstance();
+    audioDriver.getBuffer();
+    audioDriver.init(SampleRate::_44100Hz);
+//    float volume = audioDriver.getVolume();
+    MonoSynth monoSynth;
+    AudioProcessorTest audioProcessorTest;
+    audioDriver.setAudioProcessable(monoSynth);
 
     // encoder
     Encoder encoder1(TIM2, GPIOA, 0, 1);
@@ -65,7 +85,7 @@ void task1() {
             glideTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.005, 0.5);
             monoSynth.setNote(n);
             monoSynth.setGlide(glideTime);
-            audioDriver.setVolume(encoder3.getValue());
+//            audioDriver.setVolume(encoder3.getValue());
             miosix::Thread::sleep(noteChangeTime);
         }
     }

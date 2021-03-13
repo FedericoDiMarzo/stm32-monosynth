@@ -2,6 +2,7 @@
 #include "mono_synth.h"
 #include "../audio/audio_buffer.hpp"
 #include "../audio/audio_module.h"
+#include "../audio/midi.h"
 
 
 MonoSynth::MonoSynth()
@@ -19,4 +20,13 @@ void MonoSynth::process() {
 void MonoSynth::setFrequency(float f) {
     miosix::FastInterruptDisableLock lock;
     virtualAnalogOscillator.setFrequency(f);
+}
+
+void MonoSynth::setGlide(float glideTime) {
+    miosix::FastInterruptDisableLock lock;
+    virtualAnalogOscillator.setGlide(glideTime, getSampleRate());
+}
+
+void MonoSynth::setNote(uint8_t midiNote) {
+    setFrequency(Midi::midi2freq(midiNote));
 }
