@@ -46,7 +46,7 @@ void task1() {
     Midi::Parser parser;
     parser.maskChannel(2);
     while (p != std::end(noteTest)) {
-
+        parser.parse(p);
     }
 
     // initializing the audio driver
