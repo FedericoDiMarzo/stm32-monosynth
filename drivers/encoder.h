@@ -20,9 +20,15 @@ public:
      */
     float getValue();
 
+    void setValue(float newValue);
+
     inline float getSensitivity() { return sensitivity; };
 
     inline void setSensitivity(float newValue) { sensitivity = newValue; };
+
+    Encoder(Encoder &) = delete;
+
+    Encoder &operator=(Encoder &) = delete;
 
 private:
     TIM_TypeDef *timer;
@@ -35,6 +41,7 @@ private:
     const uint32_t arrValue = 0xFFFF - 1;
 
     float sensitivity;
+
 
 };
 

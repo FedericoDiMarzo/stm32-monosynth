@@ -59,3 +59,9 @@ float Encoder::getValue() {
     timer->CNT = arrValue / 2;
     return value;
 }
+
+void Encoder::setValue(float newValue) {
+    newValue = (newValue < 0) ? 0 : newValue;
+    newValue = (newValue > 1) ? 1 : newValue;
+    value = newValue;
+}
