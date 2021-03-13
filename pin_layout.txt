@@ -2,7 +2,7 @@ Encoder1 outA -> GPIOA0
 Encoder1 outB -> GPIOA1
 Encoder2 outA -> GPIOE9
 Encoder2 outB -> GPIOE11
-Encoder3 outA -> GPIOB4
-Encoder3 outB -> GPIOB5
+Encoder3 outA -> GPIOB5
+Encoder3 outB -> GPIOB4
 Encoder4 outA -> GPIOD12
 Encoder4 outB -> GPIOD13
