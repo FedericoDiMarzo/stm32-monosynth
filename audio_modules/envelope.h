@@ -67,6 +67,8 @@ public:
 
     inline void setScale(float value) { scale.setValue(value); };
 
+    ~Envelope() {};
+
     Envelope(Envelope &) = delete;
 
     Envelope &operator=(Envelope &) = delete;
