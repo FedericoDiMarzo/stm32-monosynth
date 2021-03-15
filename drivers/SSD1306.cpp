@@ -1,7 +1,7 @@
 
 
 #include "miosix.h"
-#include "SSD1306.h"
+#include "ssd1306.h"
 #include "../u8g2/u8g2.h"
 #include "../drivers/core_util.h"
 #include "../miosix/util/software_i2c.h"
