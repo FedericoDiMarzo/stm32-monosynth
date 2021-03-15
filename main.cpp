@@ -21,6 +21,7 @@
 #include <memory>
 
 
+
 MonoSynth monoSynth;
 Button button1(GPIOA, 2);
 Encoder encoder1(TIM2, GPIOA, 0, 1);
@@ -30,18 +31,16 @@ Encoder encoder4(TIM4, GPIOD, 12, 13);
 
 void encoderThread() {
     // encoder
-
-
     float sensitivity = 0.5;
     encoder1.setSensitivity(sensitivity);
     encoder2.setSensitivity(sensitivity);
     encoder3.setSensitivity(sensitivity);
     encoder4.setSensitivity(sensitivity);
-
     volatile float noteChangeTime = 1000.0;
     volatile float glideTime = 0.005;
 //    float frequencies[] = {50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 650, 700, 750, 800};
     encoder1.setValue(0.5);
+
     // encoder loop
     while (true) {
         for (auto n : midiNotesValuesInAEolian) {
@@ -59,8 +58,8 @@ void encoderThread() {
     }
 }
 
-void buttonThread() {
 
+void buttonThread() {
     volatile bool button1State = false;
     static int button1Counter = 0;
 
@@ -73,24 +72,19 @@ void buttonThread() {
 }
 
 int main() {
-
-    // midi test
-    uint8_t *p = noteTest;
-    Midi::Parser parser;
-    parser.maskChannel(2);
-    while (p != std::end(noteTest)) {
-        parser.parse(p);
-    }
-
     // initializing the audio driver
     AudioDriver &audioDriver = AudioDriver::getInstance();
     audioDriver.getBuffer();
     audioDriver.init(SampleRate::_44100Hz);
     audioDriver.setAudioProcessable(monoSynth);
-
     // starting the threads
     std::thread task1Thread(encoderThread);
     std::thread task2Thread(buttonThread);
+
+    // starting the audio driver
+    audioDriver.start();
+
+    // joining just to be safe not to leave the main
     task1Thread.join();
     task2Thread.join();
 }
