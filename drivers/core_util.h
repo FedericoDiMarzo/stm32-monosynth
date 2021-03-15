@@ -60,9 +60,8 @@ namespace CoreUtil {
     uint8_t getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin);
 
     /**
-     * This function implements an infinite loop.
-     * It is used to handle errors, in order to
-     * establish a defined execution state.
+     * This function implements an infinite loop,
+     * It can be used to debug errors.
      */
     void errorHandler();
 }
