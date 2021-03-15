@@ -7,13 +7,6 @@
 #include "../audio/audio_math.h"
 #include "lookup_tables.h"
 
-VirtualAnalogOscillator::VirtualAnalogOscillator(AudioProcessor &audioProcessor)
-        :
-        AudioModule<1>(audioProcessor),
-        frequency(100.0),
-        waveType(VirtualAnalogOscillatorWaveType::SINE),
-        phase(0.0),
-        lastParabolicSample(0.0) {}
 
 void VirtualAnalogOscillator::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     if (waveType == VirtualAnalogOscillatorWaveType::SAW_DPW) {

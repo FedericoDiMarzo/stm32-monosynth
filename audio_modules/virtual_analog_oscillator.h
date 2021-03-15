@@ -23,7 +23,12 @@ enum class VirtualAnalogOscillatorWaveType {
 class VirtualAnalogOscillator : public AudioModule<1> {
 public:
 
-    VirtualAnalogOscillator(AudioProcessor &audioProcessor);
+    VirtualAnalogOscillator(AudioProcessor &audioProcessor) :
+            AudioModule<1>(audioProcessor),
+            frequency(100.0),
+            waveType(VirtualAnalogOscillatorWaveType::SINE),
+            phase(0.0),
+            lastParabolicSample(0.0) {};
 
     /**
      * Sets the frequency of the oscillator.
