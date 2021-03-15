@@ -6,7 +6,6 @@
 
 
 void CoreUtil::rccEnableGpio(const GPIO_TypeDef *gpio) {
-    // TODO: test all states
     if (gpio == GPIOA) {
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
     } else if (gpio == GPIOB) {
@@ -31,7 +30,6 @@ void CoreUtil::rccEnableGpio(const GPIO_TypeDef *gpio) {
 }
 
 void CoreUtil::rccEnableTimer(const TIM_TypeDef *timer) {
-    // TODO: test all states
     if (timer == TIM1) {
         RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
     } else if (timer == TIM2) {
@@ -66,7 +64,6 @@ void CoreUtil::rccEnableTimer(const TIM_TypeDef *timer) {
 }
 
 void CoreUtil::rccEnableI2c(const I2C_TypeDef *i2c) {
-    // TODO: test all states
     if (i2c == I2C1) {
         RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
     } else if (i2c == I2C2) {
@@ -81,7 +78,6 @@ void CoreUtil::rccEnableI2c(const I2C_TypeDef *i2c) {
 
 uint8_t CoreUtil::getGpioTimerAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     if (pin >= 16) errorHandler();
-    // TODO: test all states
     uint8_t af = INVALID_AF; // default fallback
 
     if (gpio == GPIOA) {
@@ -155,14 +151,15 @@ uint8_t CoreUtil::getGpioTimerAf(const GPIO_TypeDef *gpio, uint8_t pin) {
         }
     }
 
+    // error, not a valid pin or gpio
     if (af == INVALID_AF) errorHandler();
     return af;
 }
 
 uint8_t CoreUtil::getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     if (pin >= 16) errorHandler();
-    // TODO: test all states
-    bool pinHasI2c = false;
+    bool pinHasI2c = false; // fallback
+
     const uint8_t af = 4; // the AF is always the same
 
     if (gpio == GPIOA) {
@@ -194,6 +191,7 @@ uint8_t CoreUtil::getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin) {
         }
     }
 
+    // the pin has not an i2c alternate function
     if (!pinHasI2c) errorHandler();
     return af;
 }
