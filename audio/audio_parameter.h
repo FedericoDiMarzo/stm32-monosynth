@@ -29,6 +29,7 @@ public:
      * @param value
      */
     AudioParameter(T value) : totalTransitionSamples(AUDIO_PARAMETER_DEFAULT_TRANSITION_SAMPLES),
+                              passedTransitionSamples(0),
                               currentValue(value),
                               lastValue(value) {};
 
