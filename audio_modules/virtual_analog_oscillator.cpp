@@ -10,7 +10,7 @@
 
 void VirtualAnalogOscillator::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     if (waveType == VirtualAnalogOscillatorWaveType::SAW_DPW) {
-
+        processSawDpw(buffer);
     } else if (waveType == VirtualAnalogOscillatorWaveType::SINE)
         processSine(buffer);
 
