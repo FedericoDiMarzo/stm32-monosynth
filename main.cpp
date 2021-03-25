@@ -1,15 +1,15 @@
 
 #include "miosix.h"
-#include "audio/audio.h"
+#include "../drivers/stm32f407vg_discovery/audio.h"
 #include "audio/audio_processor.h"
 #include "drivers/encoder.h"
 #include "audio/audio_buffer.hpp"
 #include "audio_processors/mono_synth.h"
 #include "drivers/ssd1306.h"
 #include "drivers/button.h"
-#include "audio/cs43l22dac.h"
+#include "drivers/stm32f407vg_discovery/cs43l22dac.h"
 #include "audio/audio_math.h"
-#include "audio/midi.h"
+#include "midi/midi.h"
 #include "tests/midi_test_data.h"
 #include <functional>
 #include <vector>

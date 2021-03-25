@@ -79,13 +79,6 @@ public:
     void add(AudioBuffer<T, CHANNEL_NUM, BUFFER_LEN> &buffer);
 
     /**
-     * Multiplies a second AudioBuffer to this AudioBuffer.
-     *
-     * @param buffer AudioBuffer to sum to this instance
-     */
-    void multiply(AudioBuffer<T, CHANNEL_NUM, BUFFER_LEN> &buffer);
-
-    /**
      * Performs a copy from another buffer of the same dimensions.
      *
      * @param audioBuffer buffer to copy from

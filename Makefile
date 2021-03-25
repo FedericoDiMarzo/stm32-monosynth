@@ -20,11 +20,11 @@ SUBDIRS := $(KPATH)
 ##
 SRC := \
 main.cpp \
-audio/audio.cpp \
-audio/cs43l22dac.cpp \
+drivers/stm32f407vg_discovery/audio.cpp \
+drivers/stm32f407vg_discovery/cs43l22dac.cpp \
 audio/audio_processor.cpp \
-audio/midiXparser.cpp \
-audio/midi.cpp \
+midi/midiXparser.cpp \
+midi/midi.cpp \
 audio_modules/virtual_analog_oscillator.cpp \
 audio_modules/envelope.cpp \
 audio_processors/mono_synth.cpp \
@@ -45,7 +45,7 @@ u8g2/u8x8_setup.c u8g2/u8x8_string.c u8g2/u8x8_u8toa.c u8g2/u8x8_u16toa.c \
 u8g2/u8x8_fonts.c u8g2/u8g2_fonts.c \
 u8g2/u8x8_d_ssd1306_128x32.c
 
-SRC += $(U8G2_SRC)
+#SRC += $(U8G2_SRC)
 
 ##
 ## List here additional static libraries with relative path

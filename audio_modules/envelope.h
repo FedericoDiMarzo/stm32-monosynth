@@ -2,7 +2,7 @@
 #ifndef STM32_MONOSYNTH_ENVELOPE_H
 #define STM32_MONOSYNTH_ENVELOPE_H
 
-#include "../audio/audio.h"
+#include "../drivers/stm32f407vg_discovery/audio.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_buffer.h"
 #include "../audio/audio_parameter.h"

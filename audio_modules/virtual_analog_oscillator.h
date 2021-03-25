@@ -2,12 +2,12 @@
 #ifndef STM32_MONOSYNTH_VIRTUAL_ANALOG_OSCILLATOR_H
 #define STM32_MONOSYNTH_VIRTUAL_ANALOG_OSCILLATOR_H
 
-#include "../audio/audio.h"
+#include "../drivers/stm32f407vg_discovery/audio.h"
 #include "../audio/audio_buffer.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_processor.h"
 #include "../audio/audio_parameter.h"
-#include "../audio/midi.h"
+#include "../midi/midi.h"
 
 /**
  * AudioModule implementing a virtual analog oscillator.
