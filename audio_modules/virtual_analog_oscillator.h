@@ -26,7 +26,7 @@ public:
     VirtualAnalogOscillator(AudioProcessor &audioProcessor) :
             AudioModule<1>(audioProcessor),
             frequency(100.0),
-            waveType(VirtualAnalogOscillatorWaveType::SINE),
+            waveType(VirtualAnalogOscillatorWaveType::SAW_DPW),
             phase(0.0),
             lastParabolicSample(0.0) {};
 

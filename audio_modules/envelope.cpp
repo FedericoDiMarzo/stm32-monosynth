@@ -21,6 +21,9 @@ void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) 
     sustainValue.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
     scale.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
 
+    // getting the scale updated value
+    float currentScale = scale.getInterpolatedValue();
+
     // envelope generation
     for (uint32_t i = 0; i < AUDIO_DRIVER_BUFFER_SIZE; i++) {
         // state switch from note on/off
@@ -43,7 +46,7 @@ void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) 
         }
 
 
-        // state pattern
+        // state pattern //
         if (state == EnvelopeState::DELAY) {
             // state change
             if (timerCount >= delayTime.getInterpolatedValue()) {
@@ -62,23 +65,27 @@ void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) 
             }
             // attack generation
             mixInterpolation = timerCount / timeOfCurrentPhase;
-            p[i] = AudioMath::linearInterpolation(0, scale.getInterpolatedValue(), mixInterpolation);
+            p[i] = AudioMath::linearInterpolation(0, currentScale, mixInterpolation);
 
         } else if (state == EnvelopeState::SUSTAIN) {
             // sustain generation
-            p[i] = AudioMath::linearInterpolation(scale.getInterpolatedValue(),
-                                                  sustainValue.getInterpolatedValue(), mixInterpolation);
+            timeOfCurrentPhase = sustainTime.getInterpolatedValue();
+            p[i] = AudioMath::linearInterpolation(currentScale,
+                                                  currentScale * sustainValue.getInterpolatedValue(),
+                                                  mixInterpolation);
 
         } else if (state == EnvelopeState::RELEASE) {
             // state change
             if (timerCount >= releaseTime.getInterpolatedValue()) {
                 state = EnvelopeState::RESET;
-                isTriggered = false;
-                wasTriggered = false;
                 timerCount = 0;
             }
             // release generation
-            p[i] = AudioMath::linearInterpolation(sustainValue.getInterpolatedValue(), 0, mixInterpolation);
+            p[i] = AudioMath::linearInterpolation(currentScale * sustainValue.getInterpolatedValue(), 0,
+                                                  mixInterpolation);
         }
+
+        // updating the timer
+        timerCount += 1 / getSampleRate() * AUDIO_DRIVER_BUFFER_SIZE;
     }
 }

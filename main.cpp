@@ -21,7 +21,6 @@
 #include <memory>
 
 
-
 MonoSynth monoSynth;
 Button button1(GPIOA, 2);
 Encoder encoder1(TIM2, GPIOA, 0, 1);
@@ -61,7 +60,6 @@ void encoderThread() {
     }
 }
 
-
 void buttonThread() {
     volatile bool button1State = false;
     static int button1Counter = 0;
@@ -73,20 +71,36 @@ void buttonThread() {
     }
 }
 
+void sequencerThreadFunc() {
+    while (true) {
+        monoSynth.triggerEnvelopeOn();
+        miosix::Thread::sleep(500);
+        monoSynth.triggerEnvelopeOff();
+        miosix::Thread::sleep(500);
+    }
+}
+
 int main() {
     // initializing the audio driver
     AudioDriver &audioDriver = AudioDriver::getInstance();
     audioDriver.getBuffer();
     audioDriver.init(SampleRate::_44100Hz);
     audioDriver.setAudioProcessable(monoSynth);
+
     // starting the threads
-    std::thread task1Thread(encoderThread);
+//    std::thread task1Thread(encoderThread);
     std::thread task2Thread(buttonThread);
+    std::thread sequencerThread(sequencerThreadFunc);
+
+    // testing the envelope
+    Envelope &amplifierEnvelope = monoSynth.getAmplifierEnvelope();
+    amplifierEnvelope.setDelayTime(0);
+    amplifierEnvelope.setAttackTime(0);
+    amplifierEnvelope.setSustainTime(0.3);
+    amplifierEnvelope.setReleaseTime(0);
 
     // starting the audio driver
     audioDriver.start();
+    sequencerThread.join();
 
-    // joining just to be safe not to leave the main
-    task1Thread.join();
-    task2Thread.join();
 }
