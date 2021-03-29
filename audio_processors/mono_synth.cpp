@@ -1,6 +1,6 @@
 #include "miosix.h"
 #include "mono_synth.h"
-#include "../audio/audio_buffer.hpp"
+#include "../audio/audio_buffer.h"
 #include "../audio/audio_module.h"
 #include "../drivers/stm32f407vg_discovery/audio.h"
 

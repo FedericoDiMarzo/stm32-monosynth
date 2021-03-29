@@ -3,7 +3,7 @@
 #include "../drivers/stm32f407vg_discovery/audio.h"
 #include "audio/audio_processor.h"
 #include "drivers/encoder.h"
-#include "audio/audio_buffer.hpp"
+#include "audio/audio_buffer.h"
 #include "audio_processors/mono_synth.h"
 #include "drivers/ssd1306.h"
 #include "drivers/button.h"
