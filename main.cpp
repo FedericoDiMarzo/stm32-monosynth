@@ -30,7 +30,7 @@ Encoder encoder4(TIM4, GPIOD, 12, 13);
 
 void encoderThread() {
     // encoder
-    float sensitivity = 0.5;
+    float sensitivity = -0.5; // TODO: revert the hardware connections
     encoder1.setSensitivity(sensitivity);
     encoder2.setSensitivity(sensitivity);
     encoder3.setSensitivity(sensitivity);
@@ -47,6 +47,10 @@ void encoderThread() {
 //                encoderValue = encoder1.getValue();
 //                encoderValue = encoder2.getValue();
 //                encoderValue = encoder3.getValue();
+                encoder1.update();
+                encoder2.update();
+                encoder3.update();
+                encoder4.update();
                 encoderValue = encoder4.getValue();
                 noteChangeTime = AudioMath::linearMap(encoder1.getValue(), 0, 1, 600, 20);
                 glideTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.005, 0.5);
@@ -88,7 +92,7 @@ int main() {
     audioDriver.setAudioProcessable(monoSynth);
 
     // starting the threads
-//    std::thread task1Thread(encoderThread);
+    std::thread task1Thread(encoderThread);
     std::thread task2Thread(buttonThread);
     std::thread sequencerThread(sequencerThreadFunc);
 
