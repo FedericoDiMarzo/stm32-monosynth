@@ -7,10 +7,10 @@
 
 /**
  * Class to handle an hardware button in an stm32f4xx board.
- * It's designed to be used in a thread that does
- * update the status of the it.
+ * It's designed to be used in a thread that calls
+ * its update method.
  * The status of a button must be checked
- * in the same thread.
+ * in the same thread after the update.
  */
 class Button {
 public:
@@ -45,21 +45,21 @@ public:
      */
     inline bool switchedOff() { return (isPressed() != previousState) && previousState; };
 
-    /**
-     * Sets a callback function that's triggered when
-     * the button has been released.
-     *
-     * @param newCallback functor callback
-     */
-    inline void setCallbackButtonReleased(std::function<void(void)> newCallback) { callbackButtonReleased = newCallback; };
-
-    /**
-     * Sets a callback function that's triggered when
-     * the button has been pressed.
-     *
-     * @param newCallback functor callback
-     */
-    inline void setCallbackButtonPressed(std::function<void(void)> newCallback) { callbackButtonPressed = newCallback; };
+//    /**
+//     * Sets a callback function that's triggered when
+//     * the button has been released.
+//     *
+//     * @param newCallback functor callback
+//     */
+//    inline void setCallbackButtonReleased(std::function<void(void)> newCallback) { callbackButtonReleased = newCallback; };
+//
+//    /**
+//     * Sets a callback function that's triggered when
+//     * the button has been pressed.
+//     *
+//     * @param newCallback functor callback
+//     */
+//    inline void setCallbackButtonPressed(std::function<void(void)> newCallback) { callbackButtonPressed = newCallback; };
 
     /**
      * This function updates the state of the button.
@@ -70,6 +70,11 @@ public:
      * in case of a button press or release event.
      */
     void update();
+
+    /**
+    * Deleting default constructor.
+    */
+    Button() = delete;
 
     /**
     * Deleting copy constructor.
@@ -98,15 +103,15 @@ private:
      */
     bool previousState;
 
-    /**
-     * Callback for a button release event.
-     */
-    std::function<void(void)> callbackButtonReleased;
-
-    /**
-     * Callback for a button press event.
-     */
-    std::function<void(void)> callbackButtonPressed;
+//    /**
+//     * Callback for a button release event.
+//     */
+//    std::function<void(void)> callbackButtonReleased;
+//
+//    /**
+//     * Callback for a button press event.
+//     */
+//    std::function<void(void)> callbackButtonPressed;
 };
 
 

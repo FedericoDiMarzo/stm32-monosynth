@@ -8,9 +8,7 @@ void emptyCallback() {};
 Button::Button(GPIO_TypeDef *gpio, uint8_t pin) :
         gpio(gpio),
         gpioPin(pin),
-        previousState(false),
-        callbackButtonReleased(emptyCallback),
-        callbackButtonPressed(emptyCallback) {
+        previousState(false) {
 
     // disabling interrupts during peripheral configuration
     miosix::FastInterruptDisableLock dLock;
