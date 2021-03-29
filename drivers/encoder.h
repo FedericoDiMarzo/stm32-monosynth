@@ -28,13 +28,15 @@ public:
      */
     Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t pin2);
 
+    // TODO: interface with update for the hardware interface components
+    void update();
 
     /**
      * Getter for value attribute.
      *
      * @return value between 0 and 1
      */
-    float getValue();
+    inline float getValue() const { return value; };
 
     /**
      * Sets the value of the encoder between 0 and 1.
@@ -49,7 +51,7 @@ public:
      *
      * @return sensitivity
      */
-    inline float getSensitivity() { return sensitivity; };
+    inline float getSensitivity() const { return sensitivity; };
 
     /**
      * Setter for sensitivity parameter.
@@ -61,6 +63,11 @@ public:
     inline void setSensitivity(float newValue) { sensitivity = newValue; };
 
     /**
+     * Disabling default constructor.
+     */
+    Encoder() = delete;
+
+    /**
      * Disabling copy constructor.
      */
     Encoder(Encoder &) = delete;
@@ -70,7 +77,9 @@ public:
      */
     Encoder &operator=(Encoder &) = delete;
 
-private:
+protected:
+    float getIncrement() const;
+
     /**
      * Timer pointer.
      */

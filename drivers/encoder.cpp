@@ -49,7 +49,24 @@ Encoder::Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t p
 
 };
 
-float Encoder::getValue() {
+
+void Encoder::update() {
+    value += getIncrement();
+
+    // clipping between 0 and 1
+    value = (value < 0.0f) ? 0.0f : value;
+    value = (value > 1.0f) ? 1.0f : value;
+}
+
+void Encoder::setValue(float newValue) {
+    // clipping
+    newValue = (newValue < 0) ? 0 : newValue;
+    newValue = (newValue > 1) ? 1 : newValue;
+
+    value = newValue;
+}
+
+float Encoder::getIncrement() const {
     // getting the count from the CNT register
     volatile uint32_t count = timer->CNT;
 
@@ -60,29 +77,18 @@ float Encoder::getValue() {
     // at the end of the function
     int32_t lastCount = static_cast<int32_t>(arrValue / 2);
 
-    // the delta between the middle point of the timer count
-    // and the count at the function call is calculated and
-    // scaled by the sensitivity
-    value += static_cast<float>(countSigned - lastCount) / static_cast<float>(arrValue)
-             * sensitivity * SENSITIVITY_OFFSET;
-
-    // clipping between 0 and 1
-    value = (value < 0.0f) ? 0.0f : value;
-    value = (value > 1.0f) ? 1.0f : value;
-
     {
         // disabling the interrupts ad resetting the
         // count to the middle point
         miosix::FastInterruptDisableLock dLock;
         timer->CNT = arrValue / 2;
     }
-    return value;
+
+    // the delta between the middle point of the timer count
+    // and the count at the function call is calculated and
+    // scaled by the sensitivity
+    return static_cast<float>(countSigned - lastCount) / static_cast<float>(arrValue)
+             * sensitivity * SENSITIVITY_OFFSET;
+
 }
 
-void Encoder::setValue(float newValue) {
-    // clipping
-    newValue = (newValue < 0) ? 0 : newValue;
-    newValue = (newValue > 1) ? 1 : newValue;
-
-    value = newValue;
-}
