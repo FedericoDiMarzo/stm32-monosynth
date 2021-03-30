@@ -45,22 +45,6 @@ public:
      */
     inline bool switchedOff() { return (isPressed() != previousState) && previousState; };
 
-//    /**
-//     * Sets a callback function that's triggered when
-//     * the button has been released.
-//     *
-//     * @param newCallback functor callback
-//     */
-//    inline void setCallbackButtonReleased(std::function<void(void)> newCallback) { callbackButtonReleased = newCallback; };
-//
-//    /**
-//     * Sets a callback function that's triggered when
-//     * the button has been pressed.
-//     *
-//     * @param newCallback functor callback
-//     */
-//    inline void setCallbackButtonPressed(std::function<void(void)> newCallback) { callbackButtonPressed = newCallback; };
-
     /**
      * This function updates the state of the button.
      * It's suggested to call this function in a loop of a
@@ -102,16 +86,7 @@ private:
      * of the last state update.
      */
     bool previousState;
-
-//    /**
-//     * Callback for a button release event.
-//     */
-//    std::function<void(void)> callbackButtonReleased;
-//
-//    /**
-//     * Callback for a button press event.
-//     */
-//    std::function<void(void)> callbackButtonPressed;
+    
 };
 
 
