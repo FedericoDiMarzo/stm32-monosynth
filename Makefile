@@ -28,10 +28,12 @@ midi/midi.cpp \
 audio_modules/virtual_analog_oscillator.cpp \
 audio_modules/envelope.cpp \
 audio_processors/mono_synth.cpp \
-drivers/core_util_stm32f407vg.cpp \
+drivers/stm32f407vg_discovery/core_util_stm32f407vg.cpp \
 drivers/encoder.cpp \
+drivers/double_encoder.cpp \
 drivers/ssd1306.cpp \
 drivers/button.cpp
+
 
 # U8g2 library source files
 U8G2_SRC := u8g2/u8g2_bitmap.c u8g2/u8g2_box.c u8g2/u8g2_buffer.c u8g2/u8g2_circle.c u8g2/u8g2_cleardisplay.c \
