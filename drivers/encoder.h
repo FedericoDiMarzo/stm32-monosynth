@@ -29,7 +29,7 @@ public:
     Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t pin2);
 
     // TODO: interface with update for the hardware interface components
-    void update();
+    virtual void update();
 
     /**
      * Getter for value attribute.
@@ -78,6 +78,12 @@ public:
     Encoder &operator=(Encoder &) = delete;
 
 protected:
+    /**
+     * Utility function that returns the increment
+     * of the encoder before the last call.
+     *
+     * @return encoder increment
+     */
     float getIncrement() const;
 
     /**
@@ -92,6 +98,8 @@ protected:
 
     /**
      * Rotation sensitivity.
+     * Change this attribute to scale the
+     * return value of the getIncrement method.
      */
     float sensitivity;
 
