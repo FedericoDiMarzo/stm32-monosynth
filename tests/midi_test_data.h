@@ -40,3 +40,7 @@ uint8_t pitchBendCh3[] = {
 uint8_t midiNotesValuesInAEolian[] = {
         57, 53, 77, 57, 48, 83, 77, 47
 };
+
+uint8_t midiNotesValuesOneNote[] = {
+        57
+};
