@@ -86,7 +86,7 @@ private:
      * of the last state update.
      */
     bool previousState;
-    
+
 };
 
 
