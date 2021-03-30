@@ -13,19 +13,22 @@ void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) 
     float mixInterpolation;
 
 
-    // updating all the parameters
-    delayTime.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
-    attackTime.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
-    sustainTime.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
-    releaseTime.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
-    sustainValue.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
-    scale.updateSampleCount(AUDIO_DRIVER_BUFFER_SIZE);
+
 
     // getting the scale updated value
     float currentScale = scale.getInterpolatedValue();
 
     // envelope generation
     for (uint32_t i = 0; i < AUDIO_DRIVER_BUFFER_SIZE; i++) {
+        // updating all the parameters
+        // TODO: control rate setup
+        delayTime.updateSampleCount(1);
+        attackTime.updateSampleCount(1);
+        sustainTime.updateSampleCount(1);
+        releaseTime.updateSampleCount(1);
+        sustainValue.updateSampleCount(1);
+        scale.updateSampleCount(1);
+
         // state switch from note on/off
         noteOn = (isTriggered != wasTriggered) && (isTriggered);
         noteOff = (isTriggered != wasTriggered) && (!isTriggered);
