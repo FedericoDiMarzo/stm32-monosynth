@@ -3,6 +3,7 @@
 #include "../drivers/stm32f407vg_discovery/audio.h"
 #include "audio/audio_processor.h"
 #include "drivers/encoder.h"
+#include "drivers/double_encoder.h"
 #include "audio/audio_buffer.h"
 #include "audio_processors/mono_synth.h"
 #include "drivers/ssd1306.h"
@@ -11,6 +12,9 @@
 #include "audio/audio_math.h"
 #include "midi/midi.h"
 #include "tests/midi_test_data.h"
+#include "tests/hardware_tests/encoder_test.h"
+#include "tests/hardware_tests/double_encoder_test.h"
+#include "tests/hardware_tests/button_test.h"
 #include <functional>
 #include <vector>
 #include <algorithm>
@@ -20,15 +24,34 @@
 #include <thread>
 #include <memory>
 
+///////// TESTING //////////
+///////////////////////////
+/**
+ * Enable this flag and a single specific test
+ * to disable the main execution and start testing.
+ */
+//#define TESTING_HARDWARE
+
+/**
+ * Enable one of these flags to run a specific test.
+ */
+//#define TEST_BUTTONS
+//#define TEST_ENCODERS
+//#define TEST_DOUBLE_ENCODERS
+///////////////////////////
+///////////////////////////
+
+#ifndef TESTING_HARDWARE
 
 MonoSynth monoSynth;
 Button button1(GPIOA, 2);
+//DoubleEncoder doubleEncoder1(GPIOA, 9);
 Encoder encoder1(TIM2, GPIOA, 0, 1);
 Encoder encoder2(TIM1, GPIOE, 9, 11);
 Encoder encoder3(TIM3, GPIOB, 4, 5);
 Encoder encoder4(TIM4, GPIOD, 12, 13);
 
-void encoderThread() {
+void hardwareInterfaceThreadFunc() {
     // encoder
     float sensitivity = -0.5; // TODO: revert the hardware connections
     encoder1.setSensitivity(sensitivity);
@@ -37,52 +60,44 @@ void encoderThread() {
     encoder4.setSensitivity(sensitivity);
     volatile float noteChangeTime = 1;
     volatile float glideTime = 0.005;
-    volatile float encoderValue;
+    volatile float attackTime = 0.01;
+    volatile float decayTime = 0.1;
+    volatile float sustain = 0.8;
+    volatile float releaseTime = 0.2;
+
     encoder1.setValue(0.5);
 
     // encoder loop
     while (true) {
-        for (auto n : midiNotesValuesInAEolian) {
+        for (auto n : midiNotesValuesOneNote) {
+            Midi::Note midiNote(n, 100);
+            encoder1.update();
+            encoder2.update();
+            encoder3.update();
+            encoder4.update();
+            noteChangeTime = AudioMath::linearMap(encoder1.getValue(), 0, 1, 600, 20);
+//            glideTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.005, 0.5);
+            attackTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.01, 0.5);
+            decayTime = AudioMath::linearMap(encoder3.getValue(), 0, 1, 0.01, 0.8);
+            releaseTime = AudioMath::linearMap(encoder4.getValue(), 0, 1, 0.01, 0.8);
             {
-//                encoderValue = encoder1.getValue();
-//                encoderValue = encoder2.getValue();
-//                encoderValue = encoder3.getValue();
-                encoder1.update();
-                encoder2.update();
-                encoder3.update();
-                encoder4.update();
-                encoderValue = encoder4.getValue();
-                noteChangeTime = AudioMath::linearMap(encoder1.getValue(), 0, 1, 600, 20);
-                glideTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.005, 0.5);
                 miosix::FastMutex mutex;
-                monoSynth.setNote(n);
-                monoSynth.setGlide(glideTime);
-
+//                monoSynth.setGlide(glideTime);
+                auto &envelope = monoSynth.getAmplifierEnvelope();
+                envelope.setAttackTime(attackTime);
+                envelope.setSustainTime(decayTime);
+                envelope.setReleaseTime(releaseTime);
+                monoSynth.noteOn(midiNote);
             }
-            miosix::Thread::sleep(noteChangeTime);
+            miosix::Thread::sleep(noteChangeTime / 2);
+            {
+                miosix::FastMutex mutex;
+                monoSynth.noteOff(midiNote);
+            }
         }
     }
 }
 
-void buttonThread() {
-    volatile bool button1State = false;
-    static int button1Counter = 0;
-
-    // button loop
-    while (true) {
-        button1.update();
-        miosix::Thread::sleep(0.02);
-    }
-}
-
-void sequencerThreadFunc() {
-    while (true) {
-        monoSynth.triggerEnvelopeOn();
-        miosix::Thread::sleep(500);
-        monoSynth.triggerEnvelopeOff();
-        miosix::Thread::sleep(500);
-    }
-}
 
 int main() {
     // initializing the audio driver
@@ -92,19 +107,29 @@ int main() {
     audioDriver.setAudioProcessable(monoSynth);
 
     // starting the threads
-    std::thread task1Thread(encoderThread);
-    std::thread task2Thread(buttonThread);
-    std::thread sequencerThread(sequencerThreadFunc);
+    std::thread hardwareInterfaceThread(hardwareInterfaceThreadFunc);
 
-    // testing the envelope
-    Envelope &amplifierEnvelope = monoSynth.getAmplifierEnvelope();
-    amplifierEnvelope.setDelayTime(0);
-    amplifierEnvelope.setAttackTime(0);
-    amplifierEnvelope.setSustainTime(0.3);
-    amplifierEnvelope.setReleaseTime(0);
-
-    // starting the audio driver
+    // starting the audio driver (blocking function)
     audioDriver.start();
-    sequencerThread.join();
-
 }
+
+#else // testing enabled
+#ifdef TEST_BUTTONS
+int main() {
+    buttonTest();
+}
+#endif // TEST_BUTTONS
+
+#ifdef TEST_ENCODERS
+int main() {
+    encoderTest();
+}
+#endif // TEST_ENCODERS
+
+#ifdef TEST_DOUBLE_ENCODERS
+int main() {
+    doubleEncoderTest();
+}
+#endif
+
+#endif // TESTING_HARDWARE
