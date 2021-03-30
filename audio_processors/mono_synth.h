@@ -8,6 +8,7 @@
 #include "../audio/audio_buffer.h"
 #include "../audio_modules/virtual_analog_oscillator.h"
 #include "../audio_modules/envelope.h"
+#include "../midi/midi.h"
 
 /**
  * Audio processor implementing the monophonic synthesizer.
@@ -49,17 +50,9 @@ public:
      *
      * @param midiNote value of the midi note
      */
-    void setNote(uint8_t midiNote);
+    void noteOn(Midi::Note midiNote);
 
-    /**
-     * Triggers the amplitude envelope.
-     */
-    void triggerEnvelopeOn();
-
-    /**
-     * Release the amplitude envelope trigger.
-     */
-    void triggerEnvelopeOff();
+    void noteOff(Midi::Note midiNote);
 
 private:
     /**
@@ -81,6 +74,17 @@ private:
      * AudioBuffer used to render the amplifier envelope.
      */
     AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> amplifierEnvelopeBuffer;
+
+    /**
+    * Triggers the amplitude envelope.
+    */
+    void triggerEnvelopeOn();
+
+    /**
+     * Release the amplitude envelope trigger.
+     */
+    void triggerEnvelopeOff();
+
 };
 
 #endif //STM32_MONOSYNTH_MONO_SYNTH_H
