@@ -2,8 +2,12 @@
 #include "double_encoder.h"
 
 
-DoubleEncoder::DoubleEncoder(int *timer, int *encoderGpio, int encoderPin1, int encoderPin2, int *buttonGpio,
-                             int buttonPin) :
+DoubleEncoder::DoubleEncoder(TIM_TypeDef *timer,
+                             GPIO_TypeDef *encoderGpio,
+                             uint8_t encoderPin1,
+                             uint8_t encoderPin2,
+                             GPIO_TypeDef *buttonGpio,
+                             uint8_t buttonPin) :
         Encoder(timer, encoderGpio, encoderPin1, encoderPin2),
         button(buttonGpio, buttonPin),
         pressedValue(0) {};
@@ -30,5 +34,5 @@ void DoubleEncoder::setPressedValue(float newValue) {
     newValue = (newValue < 0) ? 0 : newValue;
     newValue = (newValue > 1) ? 1 : newValue;
 
-    newValue = newValue;
+    pressedValue = newValue;
 }
