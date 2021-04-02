@@ -5,15 +5,14 @@
 #include "../audio/audio_module.h"
 #include "../audio/audio_buffer.h"
 
+// TODO: debug
+
 void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     float *p = buffer.getWritePointer(0);
     bool noteOn;
     bool noteOff;
     float timeOfCurrentPhase;
     float mixInterpolation;
-
-
-
 
     // getting the scale updated value
     float currentScale = scale.getInterpolatedValue();
