@@ -8,19 +8,23 @@
 #include "../audio/audio_buffer.h"
 #include "../audio_modules/virtual_analog_oscillator.h"
 #include "../audio_modules/envelope.h"
+#include "synthesizer.h"
 #include "../midi/midi.h"
+#include <vector>
 
 /**
  * Audio processor implementing the monophonic synthesizer.
  */
-class MonoSynth : public AudioProcessor {
+class MonoSynth : public Synthesizer {
 public:
     /**
      * Constructor.
      */
     MonoSynth() :
-            virtualAnalogOscillator(*this),
-            amplifierEnvelope(*this) {};
+//            virtualAnalogOscillators(1, *this),
+            oscillator(*this),
+            amplifierEnvelope(*this),
+            detune(0){};
 
     void process() override;
 
@@ -32,11 +36,11 @@ public:
     inline Envelope &getAmplifierEnvelope() { return amplifierEnvelope; };
 
     /**
-     * Sets the frequency played by the synth.
+     * Sets the pitch detune between the oscillators.
      *
-     * @param f note frequency
+     * @param d detune intensity, between 0 and 1.
      */
-    void setFrequency(float f);
+    void setDetune(float d);
 
     /**
      * Sets the glide time between the notes.
@@ -45,20 +49,15 @@ public:
      */
     void setGlide(float glideTime);
 
-    /**
-     * Sets the midi note played by the synth.
-     *
-     * @param midiNote value of the midi note
-     */
-    void noteOn(Midi::Note midiNote);
 
-    void noteOff(Midi::Note midiNote);
 
 private:
-    /**
-     * Oscillator implementing different VA algorithms.
-     */
-    VirtualAnalogOscillator virtualAnalogOscillator;
+//    /**
+//     * Vector of oscillators implementing different VA algorithms.
+//     */
+//    std::vector<VirtualAnalogOscillator> virtualAnalogOscillators;
+
+    VirtualAnalogOscillator oscillator;
 
     /**
      * Envelope for the output amplifier.
@@ -66,9 +65,19 @@ private:
     Envelope amplifierEnvelope;
 
     /**
+     * Pitch detune between the oscillators.
+     */
+    float detune;
+
+    /**
      * AudioBuffer used to render the VA oscillator.
      */
     AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> oscillatorBuffer;
+
+    /**
+     * an intermediate AudioBuffer used to render the VA oscillator.
+     */
+    AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> oscillatorTmpBuffer;
 
     /**
      * AudioBuffer used to render the amplifier envelope.
@@ -84,6 +93,19 @@ private:
      * Release the amplitude envelope trigger.
      */
     void triggerEnvelopeOff();
+
+    float getVirtualAnalogVoiceDetune(size_t index);
+
+    /**
+     * Sets the frequency played by the synth.
+     *
+     * @param f note frequency
+     */
+    void setFrequency(float f);
+
+    void noteOn(Midi::Note note) override;
+
+    void noteOff(Midi::Note note) override;
 
 };
 
