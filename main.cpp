@@ -15,6 +15,7 @@
 #include "tests/hardware_tests/encoder_test.h"
 #include "tests/hardware_tests/double_encoder_test.h"
 #include "tests/hardware_tests/button_test.h"
+#include "drivers/hardware_configuration.h"
 #include <functional>
 #include <vector>
 #include <algorithm>
@@ -23,6 +24,7 @@
 #include <cmath>
 #include <thread>
 #include <memory>
+#include <vector>
 
 ///////// TESTING //////////
 ///////////////////////////
@@ -43,57 +45,79 @@
 
 #ifndef TESTING_HARDWARE
 
+// The synth engine
 MonoSynth monoSynth;
-Button button1(GPIOA, 2);
-//DoubleEncoder doubleEncoder1(GPIOA, 9);
-Encoder encoder1(TIM2, GPIOA, 0, 1);
-Encoder encoder2(TIM1, GPIOE, 9, 11);
-Encoder encoder3(TIM3, GPIOB, 4, 5);
-Encoder encoder4(TIM4, GPIOD, 12, 13);
 
+// double encoders
+DoubleEncoder doubleEncoder1(DoubleEncoder1Timer, DoubleEncoder1PortEnc,
+                             DoubleEncoder1PinAEnc, DoubleEncoder1PinBEnc,
+                             DoubleEncoder1PortBut, DoubleEncoder1PinBut);
+DoubleEncoder doubleEncoder2(DoubleEncoder2Timer, DoubleEncoder2PortEnc,
+                             DoubleEncoder2PinAEnc, DoubleEncoder2PinBEnc,
+                             DoubleEncoder2PortBut, DoubleEncoder2PinBut);
+DoubleEncoder doubleEncoder3(DoubleEncoder3Timer, DoubleEncoder3PortEnc,
+                             DoubleEncoder3PinAEnc, DoubleEncoder3PinBEnc,
+                             DoubleEncoder3PortBut, DoubleEncoder3PinBut);
+DoubleEncoder doubleEncoder4(DoubleEncoder4Timer, DoubleEncoder4PortEnc,
+                             DoubleEncoder4PinAEnc, DoubleEncoder4PinBEnc,
+                             DoubleEncoder4PortBut, DoubleEncoder4PinBut);
+
+std::vector<Midi::MidiMessage> midiMessagesFromNoteValues(uint8_t *noteArray, size_t size) {
+    std::vector<Midi::MidiMessage> midiQueue;
+    for (size_t i = 0; i < size; i++) {
+        midiQueue.push_back(Midi::MidiMessage({noteArray[i], 100}, Midi::MidiMessageType::NOTE_ON));
+        midiQueue.push_back(Midi::MidiMessage({noteArray[i], 100}, Midi::MidiMessageType::NOTE_OFF));
+    }
+    return midiQueue;
+}
+
+/**
+ * Thread function for handling the hardware inputs.
+ */
 void hardwareInterfaceThreadFunc() {
-    // encoder
+    std::array < DoubleEncoder *, 4 > encoders =
+            {&doubleEncoder1, &doubleEncoder2, &doubleEncoder3, &doubleEncoder4};
     float sensitivity = -0.5; // TODO: revert the hardware connections
-    encoder1.setSensitivity(sensitivity);
-    encoder2.setSensitivity(sensitivity);
-    encoder3.setSensitivity(sensitivity);
-    encoder4.setSensitivity(sensitivity);
+    for (auto enc : encoders) {
+        enc->setSensitivity(sensitivity);
+        enc->setValue(0.5);
+    }
+
     volatile float noteChangeTime = 1;
     volatile float glideTime = 0.005;
+    volatile float detune = 0.005;
+
     volatile float attackTime = 0.01;
     volatile float decayTime = 0.1;
     volatile float sustain = 0.8;
-    volatile float releaseTime = 0.2;
+    volatile float releaseTime = 0.1;
 
-    encoder1.setValue(0.5);
 
     // encoder loop
     while (true) {
-        for (auto n : midiNotesValuesOneNote) {
-            Midi::Note midiNote(n, 100);
-            encoder1.update();
-            encoder2.update();
-            encoder3.update();
-            encoder4.update();
-            noteChangeTime = AudioMath::linearMap(encoder1.getValue(), 0, 1, 600, 20);
-//            glideTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.005, 0.5);
-            attackTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.01, 0.5);
-            decayTime = AudioMath::linearMap(encoder3.getValue(), 0, 1, 0.01, 0.8);
-            releaseTime = AudioMath::linearMap(encoder4.getValue(), 0, 1, 0.01, 0.8);
+        size_t noteSize = sizeof(midiNotesValuesSimpleMelody)/sizeof(*midiNotesValuesSimpleMelody);
+        std::vector<Midi::MidiMessage> midiQueue =
+                midiMessagesFromNoteValues(midiNotesValuesSimpleMelody, noteSize);
+
+        for (auto midiMsg : midiQueue) {
+            for (auto enc : encoders) enc->update(); // updating the encoder state
+            noteChangeTime = AudioMath::linearMap(encoders[0]->getValue(), 0, 1, 600, 20);
+            glideTime = AudioMath::linearMap(encoders[1]->getValue(), 0, 1, 0.005, 0.5);
+            detune = encoders[2]->getValue();
+//            attackTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.01, 0.5);
+//            decayTime = AudioMath::linearMap(encoder3.getValue(), 0, 1, 0.01, 0.8);
+            releaseTime = AudioMath::linearMap(encoders[3]->getValue(), 0, 1, 0.01, 0.8);
             {
                 miosix::FastMutex mutex;
-//                monoSynth.setGlide(glideTime);
-                auto &envelope = monoSynth.getAmplifierEnvelope();
-                envelope.setAttackTime(attackTime);
-                envelope.setSustainTime(decayTime);
-                envelope.setReleaseTime(releaseTime);
-                monoSynth.noteOn(midiNote);
+                monoSynth.setGlide(glideTime);
+                monoSynth.setDetune(detune);
+//                auto &envelope = monoSynth.getAmplifierEnvelope();
+//                envelope.setAttackTime(attackTime);
+//                envelope.setSustainTime(decayTime);
+//                envelope.setReleaseTime(releaseTime);
+                monoSynth.processMidi(midiMsg);
             }
-            miosix::Thread::sleep(noteChangeTime / 2);
-            {
-                miosix::FastMutex mutex;
-                monoSynth.noteOff(midiNote);
-            }
+            miosix::Thread::sleep(noteChangeTime);
         }
     }
 }
