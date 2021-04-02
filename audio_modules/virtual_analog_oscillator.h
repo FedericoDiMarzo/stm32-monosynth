@@ -8,6 +8,8 @@
 #include "../audio/audio_processor.h"
 #include "../audio/audio_parameter.h"
 #include "../midi/midi.h"
+#include <cstdlib>
+#include <cmath>
 
 /**
  * AudioModule implementing a virtual analog oscillator.
@@ -28,7 +30,11 @@ public:
             frequency(100.0),
             waveType(VirtualAnalogOscillatorWaveType::SAW_DPW),
             phase(0.0),
-            lastParabolicSample(0.0) {};
+            lastParabolicSample(0.0) {
+        // random phase initialization
+        // TODO: random seed initialization
+        phase = static_cast <float> (rand()) / static_cast <float> (2 * M_PI);
+    };
 
     /**
      * Sets the frequency of the oscillator.
