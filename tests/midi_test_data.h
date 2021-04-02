@@ -44,3 +44,7 @@ uint8_t midiNotesValuesInAEolian[] = {
 uint8_t midiNotesValuesOneNote[] = {
         57
 };
+
+uint8_t midiNotesValuesSimpleMelody[] = {
+        42, 54, 42, 45, 47, 54, 57, 41
+};
