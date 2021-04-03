@@ -27,10 +27,10 @@ public:
 
     VirtualAnalogOscillator(AudioProcessor &audioProcessor) :
             AudioModule<1>(audioProcessor),
-            frequency(100.0),
+            frequency(100.0f),
             waveType(VirtualAnalogOscillatorWaveType::SAW_DPW),
-            phase(0.0),
-            lastParabolicSample(0.0) {
+            phase(0.0f),
+            lastParabolicSample(0.0f) {
         // random phase initialization
         // TODO: random seed initialization
         phase = static_cast <float> (rand()) / static_cast <float> (2 * M_PI);
@@ -42,7 +42,7 @@ public:
      * @param f frequency in Hz
      */
     inline void setFrequency(float f) {
-        if (f < 0) return;
+        if (f < 0.0f) return;
         frequency.setValue(f);
     }
 

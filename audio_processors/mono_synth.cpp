@@ -15,14 +15,14 @@ void MonoSynth::process() {
     oscillator.process(oscillatorBuffer);
     amplifierEnvelope.process(amplifierEnvelopeBuffer);
     oscillatorBuffer.multiply(amplifierEnvelopeBuffer);
-    oscillatorBuffer.applyGain(0.3);
+    oscillatorBuffer.applyGain(0.3f);
     getBuffer().copyOnChannel(oscillatorBuffer, 0);
     getBuffer().copyOnChannel(oscillatorBuffer, 1);
 
 }
 
 void MonoSynth::setFrequency(float f) {
-    if (f < 0) return;
+    if (f < 0.0f) return;
     oscillator.setFrequency(f);
 //    for (unsigned int i = 0; i < virtualAnalogOscillators.size(); i++) {
 ////        virtualAnalogOscillators[i].setFrequency(f * (1 + getVirtualAnalogVoiceDetune(i)));
@@ -32,11 +32,12 @@ void MonoSynth::setFrequency(float f) {
 
 void MonoSynth::setDetune(float d) {
     // clipping
-    d = (d < 0) ? 0 : d;
-    d = (d > 1) ? 1 : d;
+    // TODO: create a clipping function
+    d = (d < 0.0f) ? 0.0f : d;
+    d = (d > 1.0f) ? 1.0f : d;
 
     // remapping d before assigning
-    detune = AudioMath::linearMap(d, 0, 1, 0, 0.3);
+    detune = AudioMath::linearMap(d, 0.0f, 1.0f, 0.0f, 0.3f);
 }
 
 void MonoSynth::setGlide(float glideTime) {

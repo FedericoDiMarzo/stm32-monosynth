@@ -10,7 +10,7 @@
 
 namespace AudioMath {
     LookupTable<LUT_TABLE_RESOLUTION> sineLut([](float x) { return std::sin(x); },
-                                              0, 2 * M_PI,
+                                              0.0f, 2.0f * M_PI,
                                               LookupTableEdges::PERIODIC);
 }
 

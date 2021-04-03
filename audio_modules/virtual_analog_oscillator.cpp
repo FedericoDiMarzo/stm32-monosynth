@@ -29,7 +29,7 @@ void VirtualAnalogOscillator::processSawDpw(AudioBuffer<float, 1, AUDIO_DRIVER_B
         frequency.updateSampleCount(1);
 
         // mapping the wrapped phase between -1 and 1
-        p[i] = 2 * phase - 1;
+        p[i] = 2.0f * phase - 1.0f;
 
         // parabola from the phase modulo
         p[i] = p[i] * p[i];
@@ -44,13 +44,13 @@ void VirtualAnalogOscillator::processSawDpw(AudioBuffer<float, 1, AUDIO_DRIVER_B
         lastParabolicSample = currentParabolicSample;
 
         // gain compensation
-        p[i] *= sampleRate / (4 * interpolatedFrequency);
+        p[i] *= sampleRate / (4.0f * interpolatedFrequency);
 
         // updating the phase
         phase += interpolatedFrequency / sampleRate;
 
         // phase wrapping
-        phase = (phase > 1) ? 0 : phase;
+        phase = (phase > 1.0f) ? 0.0f : phase;
     }
 }
 
@@ -63,12 +63,12 @@ void VirtualAnalogOscillator::processSine(AudioBuffer<float, 1, AUDIO_DRIVER_BUF
         frequency.updateSampleCount(1);
 
         // LUT sine
-        p[i] = AudioMath::sineLut(2 * M_PI * phase);
+        p[i] = AudioMath::sineLut(2.0f * M_PI * phase);
 
         // updating the phase
         phase += interpolatedFrequency / getSampleRate();
 
         // phase wrapping
-        phase = (phase > 1) ? 0 : phase;
+        phase = (phase > 1.0f) ? 0.0f : phase;
     }
 }
