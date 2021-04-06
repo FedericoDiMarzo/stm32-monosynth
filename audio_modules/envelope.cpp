@@ -4,90 +4,48 @@
 #include "../audio/audio_math.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_buffer.h"
+#include "../audio/audio_math.h"
 
-// TODO: debug
 
 void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     float *p = buffer.getWritePointer(0);
-    bool noteOn;
-    bool noteOff;
-    float timeOfCurrentPhase;
-    float mixInterpolation;
-
-    // getting the scale updated value
-    float currentScale = scale.getInterpolatedValue();
 
     // envelope generation
     for (uint32_t i = 0; i < AUDIO_DRIVER_BUFFER_SIZE; i++) {
-        // updating all the parameters
-        // TODO: control rate setup
-        delayTime.updateSampleCount(1);
-        attackTime.updateSampleCount(1);
-        sustainTime.updateSampleCount(1);
-        releaseTime.updateSampleCount(1);
-        sustainValue.updateSampleCount(1);
-        scale.updateSampleCount(1);
+        count += alpha[state]; // increasing the counter
 
-        // state switch from note on/off
-        noteOn = (isTriggered != wasTriggered) && (isTriggered);
-        noteOff = (isTriggered != wasTriggered) && (!isTriggered);
-        if (noteOn) {
-            // a note on triggers the delay phase
-            state = EnvelopeState::DELAY;
-            timerCount = 0;
-        } else if (noteOff) {
-            // a note off triggers the release phase
-            state = EnvelopeState::RELEASE;
-            timerCount = 0;
+        // TODO: debug
+        if (state == 1) {
+            state = state;
         }
 
-
-        // break if the envelope is not active
-        if (state == EnvelopeState::RESET) {
-            break;
+        if (count > 1.0f
+            && state != ENVELOPE_STATE_SUSTAIN
+            && state != ENVELOPE_STATE_RELEASE) {
+            count = 0.0f; // resetting the counter
+            state = (state + 1) % ENVELOPE_STATE_COUNT;
         }
-
-
-        // state pattern //
-        if (state == EnvelopeState::DELAY) {
-            // state change
-            if (timerCount >= delayTime.getInterpolatedValue()) {
-                state = EnvelopeState::ATTACK;
-                timerCount = 0;
-            }
-            // delay generation
-            p[i] = 0;
-
-        } else if (state == EnvelopeState::ATTACK) {
-            // state change
-            timeOfCurrentPhase = attackTime.getInterpolatedValue();
-            if (timerCount >= timeOfCurrentPhase) {
-                state = EnvelopeState::SUSTAIN;
-                timerCount = 0;
-            }
-            // attack generation
-            mixInterpolation = timerCount / timeOfCurrentPhase;
-            p[i] = AudioMath::linearInterpolation(0, currentScale, mixInterpolation);
-
-        } else if (state == EnvelopeState::SUSTAIN) {
-            // sustain generation
-            timeOfCurrentPhase = sustainTime.getInterpolatedValue();
-            p[i] = AudioMath::linearInterpolation(currentScale,
-                                                  currentScale * sustainValue.getInterpolatedValue(),
-                                                  mixInterpolation);
-
-        } else if (state == EnvelopeState::RELEASE) {
-            // state change
-            if (timerCount >= releaseTime.getInterpolatedValue()) {
-                state = EnvelopeState::RESET;
-                timerCount = 0;
-            }
-            // release generation
-            p[i] = AudioMath::linearInterpolation(currentScale * sustainValue.getInterpolatedValue(), 0,
-                                                  mixInterpolation);
-        }
-
-        // updating the timer
-        timerCount += 1 / getSampleRate() * AUDIO_DRIVER_BUFFER_SIZE;
+        lastOutput = alpha[state] * (gateSignals[state] - lastOutput) + lastOutput;
+        p[i] = lastOutput; // writing on the buffer
     }
 }
+
+void Envelope::setAlpha(float tau, uint8_t index) {
+    if (tau <= 1e-8f || index > 3) return; // division by zero and index check
+    alpha[index] = 1.0f / tau / getSampleRate();
+}
+
+float Envelope::boundedTau(float normalizedValue) {
+    // TODO: move clipping to audioMath
+    normalizedValue = (normalizedValue < 0.0f)? 0.0f : normalizedValue;
+    normalizedValue = (normalizedValue > 1.0f)? 1.0f : normalizedValue;
+    return AudioMath::linearMap(normalizedValue, 0, 1, ENVELOPE_MIN_TAU, ENVELOPE_MAX_TAU);
+}
+
+void Envelope::setSustain(float normalizedValue) {
+    // TODO: move clipping to audioMath
+    normalizedValue = (normalizedValue < 0.0f)? 0.0f : normalizedValue;
+    normalizedValue = (normalizedValue > 1.0f)? 1.0f : normalizedValue;
+    gateSignals[ENVELOPE_STATE_SUSTAIN] = normalizedValue;
+}
+
