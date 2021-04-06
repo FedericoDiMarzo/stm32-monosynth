@@ -3,6 +3,7 @@
 #define STM32_MONOSYNTH_BUTTON_H
 
 #include "miosix.h"
+#include "hardware_updatable.h"
 #include <functional>
 
 /**
@@ -12,7 +13,7 @@
  * The status of a button must be checked
  * in the same thread after the update.
  */
-class Button {
+class Button : HardwareUpdatable {
 public:
     /**
      * Constructor.
@@ -45,14 +46,6 @@ public:
      */
     inline bool switchedOff() { return (isPressed() != previousState) && previousState; };
 
-    /**
-     * This function updates the state of the button.
-     * It's suggested to call this function in a loop of a
-     * dedicated thread handling the hardware input interface.
-     * This function checks the input state of the GPIO pin, updates
-     * the internal state of the Button and calls the callbacks
-     * in case of a button press or release event.
-     */
     void update();
 
     /**
