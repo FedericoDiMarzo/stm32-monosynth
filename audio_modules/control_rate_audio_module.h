@@ -5,8 +5,10 @@
 #include "../audio/audio_module.h"
 
 /**
- * Interface for an AudioModule that needs a control rate
- * update of its parameters.
+ * Audio module that contains one or more parameters that
+ * must be updated at a control rate.
+ * The control rate divider specifies
+ * @tparam CHANNEL_NUM
  */
 template<size_t CHANNEL_NUM>
 class ControlRateAudioModule : public AudioModule<CHANNEL_NUM> {
@@ -18,9 +20,10 @@ public:
      * @param audioDriver audio driver
      * @param divider control rate update divider
      */
-    ControlRateAudioModule(AudioProcessor& audioProcessor, uint16_t divider = 1) :
-            AudioModule<CHANNEL_NUM>(audioProcessor),
-            controlRateDivider(divider) {};
+    ControlRateAudioModule(AudioProcessor &audioProcessor, uint16_t divider = 1) :
+            AudioModule<CHANNEL_NUM>(audioProcessor) {
+        setControlRateDivider(divider);
+    };
 
     /**
      * Getter for the controlRateDivider attribute.
@@ -36,12 +39,30 @@ public:
      * @param divider value of the division
      */
     inline void setControlRateDivider(unsigned int divider) {
-        if ((divider & (divider - 1)) != 0) return; // not a power of 2
-        controlRateDivider = divider;
+        if ((divider & (divider - 1)) != 0) { // not a power of 2
+            controlRateDivider = 1;
+        } else {
+            controlRateDivider = divider;
+        }
     };
 
-    inline float test() {
-        return AudioModule<CHANNEL_NUM>::getSampleRate();
+    /**
+     * This function is called inside the process to check
+     * if the sample processed must trigger a control rate update.
+     *
+     * @param sampleNumber current process sample
+     * @return true if a control rate update must be executed
+     */
+    inline bool isControlRateSample(int sampleNumber) {
+        return (sampleNumber % AUDIO_DRIVER_BUFFER_SIZE / controlRateDivider) == 0;
+    }
+
+    /**
+     * Gets the number of samples between two control rate updates
+     * @return
+     */
+    inline int getControlRateSampleNumber() {
+        return AUDIO_DRIVER_BUFFER_SIZE / controlRateDivider;
     }
 
 private:
