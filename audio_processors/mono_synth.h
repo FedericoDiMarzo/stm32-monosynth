@@ -21,10 +21,8 @@ public:
      * Constructor.
      */
     MonoSynth() :
-//            virtualAnalogOscillators(1, *this),
             oscillator(*this),
-            amplifierEnvelope(*this),
-            detune(0){};
+            amplifierEnvelope(*this) {};
 
     void process() override;
 
@@ -50,13 +48,7 @@ public:
     void setGlide(float glideTime);
 
 
-
 private:
-//    /**
-//     * Vector of oscillators implementing different VA algorithms.
-//     */
-//    std::vector<VirtualAnalogOscillator> virtualAnalogOscillators;
-
     VirtualAnalogOscillator oscillator;
 
     /**
@@ -65,19 +57,9 @@ private:
     Envelope amplifierEnvelope;
 
     /**
-     * Pitch detune between the oscillators.
-     */
-    float detune;
-
-    /**
      * AudioBuffer used to render the VA oscillator.
      */
     AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> oscillatorBuffer;
-
-    /**
-     * an intermediate AudioBuffer used to render the VA oscillator.
-     */
-    AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> oscillatorTmpBuffer;
 
     /**
      * AudioBuffer used to render the amplifier envelope.
@@ -93,8 +75,6 @@ private:
      * Release the amplitude envelope trigger.
      */
     void triggerEnvelopeOff();
-
-    float getVirtualAnalogVoiceDetune(size_t index);
 
     /**
      * Sets the frequency played by the synth.
