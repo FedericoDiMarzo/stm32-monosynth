@@ -4,8 +4,9 @@
 #define STM32_MONOSYNTH_ENCODER_H
 
 #include "miosix.h"
+#include "hardware_updatable.h"
 
-#define SENSITIVITY_OFFSET (1500.0f)
+#define ENCODER_SENSITIVITY_OFFSET (1500.0f)
 
 /**
  * Class to handle an hardware encoder in a stm32f4xx board.
@@ -13,8 +14,11 @@
  * must be initialized with a timer that supports that function.
  * The encoder should send rising edge pulses, thus the common
  * pin must be connected to a 3V voltage source.
+ * It's designed to be used in a thread that calls
+ * its update method. The status of a button must be checked
+ * in the same thread after the update.
  */
-class Encoder {
+class Encoder : public HardwareUpdatable {
 public:
 
     /**
@@ -28,8 +32,7 @@ public:
      */
     Encoder(TIM_TypeDef *timer, GPIO_TypeDef *gpio, uint8_t pin1, uint8_t pin2);
 
-    // TODO: interface with update for the hardware interface components
-    virtual void update();
+    void update() override;
 
     /**
      * Getter for value attribute.

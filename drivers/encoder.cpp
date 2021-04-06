@@ -88,7 +88,7 @@ float Encoder::getIncrement() const {
     // and the count at the function call is calculated and
     // scaled by the sensitivity
     return static_cast<float>(countSigned - lastCount) / static_cast<float>(arrValue)
-             * sensitivity * SENSITIVITY_OFFSET;
+           * sensitivity * ENCODER_SENSITIVITY_OFFSET;
 
 }
 
