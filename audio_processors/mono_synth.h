@@ -22,7 +22,8 @@ public:
      */
     MonoSynth() :
             oscillator(*this),
-            amplifierEnvelope(*this) {};
+            amplifierEnvelope(*this),
+            normalizedVelocity(0) {};
 
     void process() override;
 
@@ -34,13 +35,6 @@ public:
     inline Envelope &getAmplifierEnvelope() { return amplifierEnvelope; };
 
     /**
-     * Sets the pitch detune between the oscillators.
-     *
-     * @param d detune intensity, between 0 and 1.
-     */
-    void setDetune(float d);
-
-    /**
      * Sets the glide time between the notes.
      *
      * @param glideTime time in seconds
@@ -49,12 +43,22 @@ public:
 
 
 private:
+
+    /**
+     * Oscillator audio module.
+     */
     VirtualAnalogOscillator oscillator;
 
     /**
      * Envelope for the output amplifier.
      */
     Envelope amplifierEnvelope;
+
+    /**
+     * Amplifier multiplier based on the
+     * velocity of a noteOn.
+     */
+    float normalizedVelocity;
 
     /**
      * AudioBuffer used to render the VA oscillator.

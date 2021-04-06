@@ -9,7 +9,7 @@ void MonoSynth::process() {
     oscillator.process(oscillatorBuffer);
     amplifierEnvelope.process(amplifierEnvelopeBuffer);
     oscillatorBuffer.multiply(amplifierEnvelopeBuffer);
-    oscillatorBuffer.applyGain(0.8f);
+    oscillatorBuffer.applyGain(normalizedVelocity);
     getBuffer().copyOnChannel(oscillatorBuffer, 0);
     getBuffer().copyOnChannel(oscillatorBuffer, 1);
 
@@ -26,8 +26,10 @@ void MonoSynth::setGlide(float glideTime) {
 }
 
 void MonoSynth::noteOn(Midi::Note note) {
-    // TODO: handle velocity
+    // TODO: test velocity
     setFrequency(Midi::midi2freq(note.getMidiNote()));
+    normalizedVelocity = AudioMath::linearMap(static_cast<float>(note.getVelocity()),
+            0.0f, 127.0f, 0.0f, 1.0f);
     triggerEnvelopeOn();
 }
 
