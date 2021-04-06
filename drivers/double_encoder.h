@@ -33,7 +33,7 @@ public:
                   GPIO_TypeDef *buttonGpio,
                   uint8_t buttonPin);
 
-    virtual void update() override;
+    void update() override;
 
     /**
      * Getter for the button attribute. It allows to obtain
