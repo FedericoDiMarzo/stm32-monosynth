@@ -14,7 +14,6 @@ void Envelope::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) 
     for (uint32_t i = 0; i < AUDIO_DRIVER_BUFFER_SIZE; i++) {
         count += alpha[state]; // increasing the counter
 
-        // TODO: debug
         if (state == 1) {
             state = state;
         }
@@ -36,16 +35,12 @@ void Envelope::setAlpha(float tau, uint8_t index) {
 }
 
 float Envelope::boundedTau(float normalizedValue) {
-    // TODO: move clipping to audioMath
-    normalizedValue = (normalizedValue < 0.0f)? 0.0f : normalizedValue;
-    normalizedValue = (normalizedValue > 1.0f)? 1.0f : normalizedValue;
+    normalizedValue = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
     return AudioMath::linearMap(normalizedValue, 0, 1, ENVELOPE_MIN_TAU, ENVELOPE_MAX_TAU);
 }
 
 void Envelope::setSustain(float normalizedValue) {
-    // TODO: move clipping to audioMath
-    normalizedValue = (normalizedValue < 0.0f)? 0.0f : normalizedValue;
-    normalizedValue = (normalizedValue > 1.0f)? 1.0f : normalizedValue;
+    normalizedValue = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
     gateSignals[ENVELOPE_STATE_SUSTAIN] = normalizedValue;
 }
 
