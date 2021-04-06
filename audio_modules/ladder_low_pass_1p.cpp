@@ -6,15 +6,12 @@ void LadderLPF1P::process(AudioBuffer<float, CHANNEL_NUM, AUDIO_DRIVER_BUFFER_SI
     float *p = buffer.getWritePointer(0);
     float sampleRate = getSampleRate();
     float v; // integrator gain output
-    int controlRateCount = buffer.getBufferLenght() / controlRateDivider;
 
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
 
         // cutoff frequency update on control rate
-        // TODO: handle control rate in a more elegant way
-        if (i % controlRateCount == 0) {
-            cutoffFrequency.updateSampleCount(controlRateCount);
-        }
+        if (isControlRateSample(i))
+            cutoffFrequency.updateSampleCount(getControlRateSampleNumber());
 
         // processing (pag.77 of "The art of VA filter design")
         g = M_PI * cutoffFrequency.getInterpolatedValue() / (sampleRate * sampleRate);
