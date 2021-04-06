@@ -27,20 +27,20 @@ enum class VirtualAnalogOscillatorWaveType {
 class VirtualAnalogOscillator : public ControlRateAudioModule<1> {
 public:
 
-    VirtualAnalogOscillator(AudioProcessor& audioProcessor,
+    VirtualAnalogOscillator(AudioProcessor &audioProcessor,
                             AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &modulator = defaultNullModulator)
             :
             ControlRateAudioModule<1>(audioProcessor, 16),
             frequency(100.0f),
             waveType(VirtualAnalogOscillatorWaveType::SAW),
-            phase(0.0f),
+            normalizedPhase(0.0f),
             lastParabolicSample(0.0f),
             modulator(modulator),
             modulationIntensity(0.0f) {
 
         // TODO: random seed initialization
         // random phase initialization
-        phase = static_cast <float> (rand()) / static_cast <float> (2 * M_PI);
+        normalizedPhase = static_cast <float> (rand()) / static_cast <float> (2 * M_PI);
     };
 
     /**
@@ -59,8 +59,20 @@ public:
      * @param time in seconds
      * @param sampleRate sample frequency
      */
-    void setGlide(float time, float sampleRate) {
+    inline void setGlide(float time, float sampleRate) {
         frequency.setTransitionTime(time, sampleRate);
+    }
+
+    /**
+     * Sets the pitch modulation intensity.
+     *
+     * @param normalizedValue value between 0 and 1
+     */
+     // TODO: test
+    inline void setModulatorIntensity(float normalizedValue) {
+        // TODO: check the modulation intensity mapping range
+        normalizedValue = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
+        modulationIntensity.setValue(AudioMath::linearMap(normalizedValue, 0.0f, 1.0f, 0.0f, 0.2f));
     }
 
     void process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) override;
@@ -80,7 +92,7 @@ private:
     /**
      * Phase of the oscillator, between 0 and 1.
      */
-    float phase;
+    float normalizedPhase;
 
     /**
      * Buffer used by the saw DPW algorithm.

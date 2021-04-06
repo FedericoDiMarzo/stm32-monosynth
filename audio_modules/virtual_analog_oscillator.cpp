@@ -21,7 +21,8 @@ void VirtualAnalogOscillator::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_
 
 void VirtualAnalogOscillator::processSawDpw(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     // Saw DPW algorithm
-    float *p = buffer.getWritePointer(0);
+    float *out = buffer.getWritePointer(0);
+    float *mod = modulator.getWritePointer(0);
     float sampleRate = getSampleRate();
     float currentParabolicSample = 0;
     float interpolatedFrequency;
@@ -30,34 +31,40 @@ void VirtualAnalogOscillator::processSawDpw(AudioBuffer<float, 1, AUDIO_DRIVER_B
         interpolatedFrequency = frequency.getInterpolatedValue();
         frequency.updateSampleCount(1);
 
-        // mapping the wrapped phase between -1 and 1
-        p[i] = 2.0f * phase - 1.0f;
+        // modulation intensity update on control rate
+        if (isControlRateSample(i))
+            modulationIntensity.updateSampleCount(getControlRateSampleNumber());
+
+        // mapping the wrapped phase between -1 and 1, and adding the pitch modulation
+        out[i] = 2.0f * AudioMath::rampLut(normalizedPhase + modulationIntensity.getInterpolatedValue() * mod[i]) - 1.0f;
 
         // parabola from the phase modulo
-        p[i] = p[i] * p[i];
+        out[i] = out[i] * out[i];
 
         // storing the parabola sample in a tmp buffer
-        currentParabolicSample = p[i];
+        currentParabolicSample = out[i];
 
         // differentiation
-        p[i] = p[i] - lastParabolicSample;
+        out[i] = out[i] - lastParabolicSample;
 
         // buffering the current parabola sample
         lastParabolicSample = currentParabolicSample;
 
         // gain compensation
-        p[i] *= sampleRate / (4.0f * interpolatedFrequency);
+        out[i] *= sampleRate / (4.0f * interpolatedFrequency);
 
         // updating the phase
-        phase += interpolatedFrequency / sampleRate;
+        normalizedPhase += interpolatedFrequency / sampleRate;
 
         // phase wrapping
-        phase = (phase > 1.0f) ? 0.0f : phase;
+        normalizedPhase = (normalizedPhase > 1.0f) ? 0.0f : normalizedPhase;
     }
 }
 
 void VirtualAnalogOscillator::processSine(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
-    float *p = buffer.getWritePointer(0);
+    float *out = buffer.getWritePointer(0);
+    float *mod = modulator.getWritePointer(0);
+
     float interpolatedFrequency;
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
 
@@ -65,13 +72,18 @@ void VirtualAnalogOscillator::processSine(AudioBuffer<float, 1, AUDIO_DRIVER_BUF
         interpolatedFrequency = frequency.getInterpolatedValue();
         frequency.updateSampleCount(1);
 
-        // LUT sine
-        p[i] = AudioMath::sineLut(2.0f * M_PI * phase);
+        // modulation intensity update on control rate
+        if (isControlRateSample(i))
+            modulationIntensity.updateSampleCount(getControlRateSampleNumber());
+
+        // LUT sine with pitch modulation
+        out[i] = AudioMath::sineLut(2.0f * M_PI * normalizedPhase +
+                                  modulationIntensity.getInterpolatedValue() * mod[i]);
 
         // updating the phase
-        phase += interpolatedFrequency / getSampleRate();
+        normalizedPhase += interpolatedFrequency / getSampleRate();
 
         // phase wrapping
-        phase = (phase > 1.0f) ? 0.0f : phase;
+        normalizedPhase = (normalizedPhase > 1.0f) ? 0.0f : normalizedPhase;
     }
 }
