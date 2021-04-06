@@ -77,44 +77,42 @@ std::vector<Midi::MidiMessage> midiMessagesFromNoteValues(uint8_t *noteArray, si
 void hardwareInterfaceThreadFunc() {
     std::array < DoubleEncoder *, 4 > encoders =
             {&doubleEncoder1, &doubleEncoder2, &doubleEncoder3, &doubleEncoder4};
-    float sensitivity = -0.5; // TODO: revert the hardware connections
+    float sensitivity = -0.5f; // TODO: revert the hardware connections
     for (auto enc : encoders) {
         enc->setSensitivity(sensitivity);
-        enc->setValue(0.5);
     }
+    encoders[0]->setValue(0.5f);
 
-    volatile float noteChangeTime = 1;
-    volatile float glideTime = 0.005;
-    volatile float detune = 0.005;
+    volatile float noteChangeTime = 600.0f;
+    volatile float glideTime = 0.005f;
+    volatile float detune = 0.005f;
 
-    volatile float attackTime = 0.01;
-    volatile float decayTime = 0.1;
-    volatile float sustain = 0.8;
-    volatile float releaseTime = 0.1;
-
+    volatile float attackTime = 0.01f;
+    volatile float decayTime = 0.1f;
+    volatile float sustain = 0.8f;
+    volatile float releaseTime = 0.1f;
+    Envelope& ampEnvelope = monoSynth.getAmplifierEnvelope();
 
     // encoder loop
     while (true) {
+
         size_t noteSize = sizeof(midiNotesValuesSimpleMelody)/sizeof(*midiNotesValuesSimpleMelody);
         std::vector<Midi::MidiMessage> midiQueue =
                 midiMessagesFromNoteValues(midiNotesValuesSimpleMelody, noteSize);
 
         for (auto midiMsg : midiQueue) {
             for (auto enc : encoders) enc->update(); // updating the encoder state
-            noteChangeTime = AudioMath::linearMap(encoders[0]->getValue(), 0, 1, 600, 20);
-            glideTime = AudioMath::linearMap(encoders[1]->getValue(), 0, 1, 0.005, 0.5);
-            detune = encoders[2]->getValue();
-//            attackTime = AudioMath::linearMap(encoder2.getValue(), 0, 1, 0.01, 0.5);
-//            decayTime = AudioMath::linearMap(encoder3.getValue(), 0, 1, 0.01, 0.8);
-            releaseTime = AudioMath::linearMap(encoders[3]->getValue(), 0, 1, 0.01, 0.8);
+            attackTime = encoders[0]->getValue();
+            decayTime = encoders[1]->getValue();
+            sustain = encoders[2]->getValue();
+            releaseTime = encoders[3]->getValue();
             {
                 miosix::FastMutex mutex;
-                monoSynth.setGlide(glideTime);
-                monoSynth.setDetune(detune);
-//                auto &envelope = monoSynth.getAmplifierEnvelope();
-//                envelope.setAttackTime(attackTime);
-//                envelope.setSustainTime(decayTime);
-//                envelope.setReleaseTime(releaseTime);
+//                ampEnvelope.setAttack(attackTime);
+//                ampEnvelope.setDecay(decayTime);
+//                ampEnvelope.setSustain(sustain);
+//                ampEnvelope.setRelease(releaseTime);
+
                 monoSynth.processMidi(midiMsg);
             }
             miosix::Thread::sleep(noteChangeTime);
@@ -127,7 +125,7 @@ int main() {
     // initializing the audio driver
     AudioDriver &audioDriver = AudioDriver::getInstance();
     audioDriver.getBuffer();
-    audioDriver.init(SampleRate::_44100Hz);
+    audioDriver.init(SampleRate::_44100Hz); // TODO: solve late initialization of sampleRate
     audioDriver.setAudioProcessable(monoSynth);
 
     // starting the threads
