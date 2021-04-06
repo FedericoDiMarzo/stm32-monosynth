@@ -1,29 +1,21 @@
-#include "audio.h"
-#include "cs43l22dac.h"
 #include "miosix.h"
+#include "../common/audio.h"
+#include "../common/audio_config.h"
+#include "cs43l22dac.h"
 #include "kernel/scheduler/scheduler.h"
-#include "audio/audio_processor.h"
-#include "audio/audio_buffer.h"
-#include "audio/audio_math.h"
-#include <functional>
-#include <algorithm>
-#include <memory>
+#include "../../audio/audio_processor.h"
+#include "../../audio/audio_buffer.h"
+#include "../../audio/audio_math.h"
 #include <array>
 
 #define DOUBLE_BUFFER_BUFFERS 2
 
-// TODO: static is not good
-
-// singleton instance of the AudioDriver
-static AudioDriver &audioDriver = AudioDriver::getInstance();
 
 // instance of an AudioProcessable with an empty processor
 static AudioProcessableDummy audioProcessableDummy;
 
-// TODO: move inside the header file
 /**
  * double buffer containing an interleaved int values for a 16bit DAC.
- * TODO: it could be useful to have the bit depth as a template for an abstract class
  */
 static miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DOUBLE_BUFFER_BUFFERS> *doubleBuffer;
 
@@ -43,10 +35,8 @@ static miosix::Thread *writerThread;
  * This function is used to fill the DMA with a buffer.
  *
  * @param buffer AudioBuffer to move with DMA
- * @param bufferSize buffer size
  */
-void refillDMA_IRQ(miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DOUBLE_BUFFER_BUFFERS> *bufferQueue,
-                   unsigned int bufferSize) {
+void refillDMA_IRQ(miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DOUBLE_BUFFER_BUFFERS> *bufferQueue) {
 
     const int16_t *rawBuffer = nullptr;
     unsigned int size = 0;
@@ -58,7 +48,7 @@ void refillDMA_IRQ(miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DO
     DMA1_Stream5->PAR = reinterpret_cast<unsigned int>(&SPI3->DR);
     DMA1_Stream5->M0AR = reinterpret_cast<unsigned int>(rawBuffer);
 
-    DMA1_Stream5->NDTR = bufferSize * 2; // setting the buffer size (stereo buffer size)
+    DMA1_Stream5->NDTR = bufferQueue->bufferMaxSize(); // setting the buffer size (stereo buffer size)
     DMA1_Stream5->CR = DMA_SxCR_PL_1 |      //High priority DMA stream
                        DMA_SxCR_MSIZE_0 |   //Read  16bit at a time from RAM
                        DMA_SxCR_PSIZE_0 |   //Write 16bit at a time to SPI
@@ -73,25 +63,27 @@ void refillDMA_IRQ(miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DO
  * outside an interrupt.
  *
  * @param buffer AudioBuffer to move with DMA
- * @param bufferSize buffer size
  */
-void refillDMA(miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DOUBLE_BUFFER_BUFFERS> *bufferQueue,
-               unsigned int bufferSize) { // TODO: remove bufferSize
+void refillDMA(miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DOUBLE_BUFFER_BUFFERS> *bufferQueue) {
 
     miosix::FastInterruptDisableLock lock;
-    refillDMA_IRQ(bufferQueue, bufferSize);
+    refillDMA_IRQ(bufferQueue);
 }
 
 
-AudioDriver::AudioDriver()
+AudioDriver::AudioDriver(SampleRate sampleRateEnum)
         :
         bufferSize(AUDIO_DRIVER_BUFFER_SIZE),
-        audioProcessable(&audioProcessableDummy) {
+        audioProcessable(&audioProcessableDummy),
+        sampleRateEnum(sampleRateEnum){
 
+    // creating the buffers for the output
     doubleBuffer = new miosix::BufferQueue<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2, DOUBLE_BUFFER_BUFFERS>();
     emptyBuffer = new std::array<int16_t, AUDIO_DRIVER_BUFFER_SIZE * 2>();
+    emptyBuffer->fill(0);
 
-    // TODO: check if the emptyBuffer is, indeed, empty
+    // Set up sample rate attribute
+    setSampleRate(sampleRateEnum);
 
     // disabling interrupts
     miosix::FastInterruptDisableLock lock;
@@ -107,13 +99,10 @@ AudioDriver::~AudioDriver() {
     delete emptyBuffer;
 }
 
-void AudioDriver::init(SampleRate::SR sampleRate) {
-
-    // Set up sample rate variable
-    setSampleRate(sampleRate);
+void AudioDriver::init() {
 
     // Init DAC with desired SR
-    Cs43l22dac::init(sampleRate);
+    Cs43l22dac::init(sampleRateEnum);
 
     // default volume
     setVolume(0.7);
@@ -150,7 +139,7 @@ void AudioDriver::start() {
     int16_t *writableRawBuffer;
 
     // Refill DMA with empty doubleBuffer
-    refillDMA(doubleBuffer, bufferSize);
+    refillDMA(doubleBuffer);
 
     while (true) {
 
@@ -158,7 +147,7 @@ void AudioDriver::start() {
 
         // write on the buffer
         // callback to the AudioProcessable to process the buffer
-        audioDriver.getAudioProcessable().process();
+        getAudioProcessable().process();
 
         // Convert current float buffers to the int16_t buffer
         writeToOutputBuffer(writableRawBuffer);
@@ -169,9 +158,9 @@ void AudioDriver::start() {
     }
 }
 
-void AudioDriver::writeToOutputBuffer(int16_t *writableOutputRawBuffer) const {
-    unsigned int bufferSize = audioDriver.getBufferSize();
-    auto &buffer = audioDriver.getBuffer();
+void AudioDriver::writeToOutputBuffer(int16_t *writableOutputRawBuffer) {
+    unsigned int bufferSize = getBufferSize();
+    AudioBuffer<float, 2, AUDIO_DRIVER_BUFFER_SIZE> &buffer = getBuffer();
 
     auto bufferLeftFloat = buffer.getReadPointer(0);
     auto bufferRightFloat = buffer.getReadPointer(1);
@@ -184,12 +173,7 @@ void AudioDriver::writeToOutputBuffer(int16_t *writableOutputRawBuffer) const {
 }
 
 
-AudioDriver &AudioDriver::getInstance() {
-    static AudioDriver instance;
-    return instance;
-}
-
-void AudioDriver::setSampleRate(SampleRate::SR sampleRate) {
+void AudioDriver::setSampleRate(SampleRate sampleRate) {
     switch (sampleRate) {
         case SampleRate::_8000Hz:
             this->sampleRate = 8000.0;
@@ -250,7 +234,7 @@ void __attribute__((used)) I2SdmaHandlerImpl() {
 
     // refilling the DMA buffer
     doubleBuffer->bufferEmptied(); // TODO: discover why this is not below
-    refillDMA_IRQ(doubleBuffer, audioDriver.getBufferSize());
+    refillDMA_IRQ(doubleBuffer);
 //    doubleBuffer->bufferEmptied();
 
     // waking up the reader
