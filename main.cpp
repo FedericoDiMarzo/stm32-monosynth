@@ -1,6 +1,6 @@
 
 #include "miosix.h"
-#include "../drivers/stm32f407vg_discovery/audio.h"
+#include "../drivers/common/audio.h"
 #include "audio/audio_processor.h"
 #include "drivers/encoder.h"
 #include "drivers/double_encoder.h"
@@ -45,8 +45,11 @@
 
 #ifndef TESTING_HARDWARE
 
+// The audio driver
+AudioDriver audioDriver(SampleRate::_44100Hz);
+
 // The synth engine
-MonoSynth monoSynth;
+MonoSynth monoSynth(audioDriver);
 
 // double encoders
 DoubleEncoder doubleEncoder1(DoubleEncoder1Timer, DoubleEncoder1PortEnc,
@@ -123,9 +126,8 @@ void hardwareInterfaceThreadFunc() {
 
 int main() {
     // initializing the audio driver
-    AudioDriver &audioDriver = AudioDriver::getInstance();
     audioDriver.getBuffer();
-    audioDriver.init(SampleRate::_44100Hz); // TODO: solve late initialization of sampleRate
+    audioDriver.init();
     audioDriver.setAudioProcessable(monoSynth);
 
     // starting the threads

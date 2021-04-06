@@ -4,7 +4,7 @@
 
 #include "../audio/audio_module.h"
 #include "../audio/audio_parameter.h"
-#include "control_rate.h"
+#include "control_rate_audio_module.h"
 
 
 /**
@@ -12,15 +12,14 @@
  *
  * Reference: Chapter 5 of "The art of VA filter design" by Vadim Zavalishin.
  */
- // TODO: testing 
-class LadderLPF1P : public AudioModule<1>, public ControlRate {
+// TODO: testing
+class LadderLPF1P : public ControlRate<1> {
 public:
-    LadderLPF1P() :
+    LadderLPF1P(AudioProcessor& audioProcessor) :
+            ControlRate<1>(audioProcessor, 16),
             cutoffFrequency(3000),
             state(0),
-            G(0),
-            S(0),
-            controlRateDivider(16) {}; // TODO: check init values correctness
+            G(0) {}; // TODO: check init values correctness
 
     void process(AudioBuffer<float, CHANNEL_NUM, AUDIO_DRIVER_BUFFER_SIZE> &buffer) override;
 
@@ -54,18 +53,6 @@ private:
      * G = g/(1+g)
      */
     float G;
-
-    /**
-     * State parameter of the filter equation.
-     *
-     * S = state/(1+g)
-     */
-    float S;
-
-//    /**
-//     * Flag used to check if a buffer is being processed.
-//     */
-//    bool blockIsProcessing;
 
 };
 

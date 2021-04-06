@@ -1,14 +1,26 @@
 
-#ifndef STM32_MONOSYNTH_CONTROL_RATE_H
-#define STM32_MONOSYNTH_CONTROL_RATE_H
+#ifndef STM32_MONOSYNTH_CONTROL_RATE_AUDIO_MODULE_H
+#define STM32_MONOSYNTH_CONTROL_RATE_AUDIO_MODULE_H
 
+#include "../audio/audio_module.h"
 
 /**
  * Interface for an AudioModule that needs a control rate
  * update of its parameters.
  */
-class ControlRate {
+template<size_t CHANNEL_NUM>
+class ControlRateAudioModule : public AudioModule<CHANNEL_NUM> {
 public:
+
+    /**
+     * Constructor.
+     *
+     * @param audioDriver audio driver
+     * @param divider control rate update divider
+     */
+    ControlRateAudioModule(AudioProcessor& audioProcessor, uint16_t divider = 1) :
+            AudioModule<CHANNEL_NUM>(audioProcessor),
+            controlRateDivider(divider) {};
 
     /**
      * Getter for the controlRateDivider attribute.
@@ -28,6 +40,9 @@ public:
         controlRateDivider = divider;
     };
 
+    inline float test() {
+        return AudioModule<CHANNEL_NUM>::getSampleRate();
+    }
 
 private:
     /**
@@ -35,7 +50,7 @@ private:
      * AudioParameters with respect to the sample rate.
      * It must be a power of two and less than the sampling frequency.
      */
-    unsigned int controlRateDivider;
+    uint16_t controlRateDivider;
 };
 
-#endif //STM32_MONOSYNTH_CONTROL_RATE_H
+#endif //STM32_MONOSYNTH_CONTROL_RATE_AUDIO_MODULE_H

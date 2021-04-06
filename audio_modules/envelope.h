@@ -2,8 +2,8 @@
 #ifndef STM32_MONOSYNTH_ENVELOPE_H
 #define STM32_MONOSYNTH_ENVELOPE_H
 
-#include "../drivers/stm32f407vg_discovery/audio.h"
-#include "control_rate.h"
+#include "../drivers/common/audio.h"
+#include "control_rate_audio_module.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_buffer.h"
 #include "../audio/audio_parameter.h"
@@ -19,10 +19,10 @@
 // TODO: fine tune max and min tau
 
 
-class Envelope : public AudioModule<1>, public ControlRate {
+class Envelope : public AudioModule<1> {
 public:
 
-    Envelope(AudioProcessor &audioProcessor) :
+    Envelope(AudioProcessor& audioProcessor) :
             AudioModule<1>(audioProcessor),
             lastOutput(0.0f),
             count(0.0f),

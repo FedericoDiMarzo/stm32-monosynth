@@ -11,6 +11,7 @@ void LadderLPF1P::process(AudioBuffer<float, CHANNEL_NUM, AUDIO_DRIVER_BUFFER_SI
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
 
         // cutoff frequency update on control rate
+        // TODO: handle control rate in a more elegant way
         if (i % controlRateCount == 0) {
             cutoffFrequency.updateSampleCount(controlRateCount);
         }

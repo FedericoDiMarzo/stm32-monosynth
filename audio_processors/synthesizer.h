@@ -2,6 +2,7 @@
 #ifndef STM32_MONOSYNTH_SYNTHETIZER_H
 #define STM32_MONOSYNTH_SYNTHETIZER_H
 
+#include "../drivers/common/audio.h"
 #include "../audio/audio_processor.h"
 #include "../midi/midi.h"
 
@@ -11,6 +12,13 @@
  */
 class Synthesizer : public AudioProcessor {
 public:
+
+    /**
+     * Constructor
+     *
+     * @param audioDriver
+     */
+    Synthesizer(AudioDriver &audioDriver) : AudioProcessor(audioDriver) {};
 
     /**
      * Method for handling input midi messages.

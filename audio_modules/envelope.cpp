@@ -1,6 +1,6 @@
 
 #include "envelope.h"
-#include "../drivers/stm32f407vg_discovery/audio.h"
+#include "../drivers/common/audio.h"
 #include "../audio/audio_math.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_buffer.h"

@@ -2,12 +2,12 @@
 #ifndef STM32_MONOSYNTH_VIRTUAL_ANALOG_OSCILLATOR_H
 #define STM32_MONOSYNTH_VIRTUAL_ANALOG_OSCILLATOR_H
 
-#include "../drivers/stm32f407vg_discovery/audio.h"
+#include "../drivers/common/audio.h"
 #include "../audio/audio_buffer.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_processor.h"
 #include "../audio/audio_parameter.h"
-#include "../midi/midi.h"
+#include "control_rate_audio_module.h"
 #include <cstdlib>
 #include <cmath>
 
@@ -18,21 +18,28 @@
 
 
 enum class VirtualAnalogOscillatorWaveType {
-    SAW_DPW,
-    SINE
+    SAW,
+    SQUARE, // TODO: implement square wave
+    SINE,
+    TRIANGLE, // TODO: implement triangle wave
 };
 
-class VirtualAnalogOscillator : public AudioModule<1> {
+class VirtualAnalogOscillator : public ControlRateAudioModule<1> {
 public:
 
-    VirtualAnalogOscillator(AudioProcessor &audioProcessor) :
-            AudioModule<1>(audioProcessor),
+    VirtualAnalogOscillator(AudioProcessor& audioProcessor,
+                            AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &modulator = defaultNullModulator)
+            :
+            ControlRateAudioModule<1>(audioProcessor, 16),
             frequency(100.0f),
-            waveType(VirtualAnalogOscillatorWaveType::SAW_DPW),
+            waveType(VirtualAnalogOscillatorWaveType::SAW),
             phase(0.0f),
-            lastParabolicSample(0.0f) {
-        // random phase initialization
+            lastParabolicSample(0.0f),
+            modulator(modulator),
+            modulationIntensity(0.0f) {
+
         // TODO: random seed initialization
+        // random phase initialization
         phase = static_cast <float> (rand()) / static_cast <float> (2 * M_PI);
     };
 
@@ -65,6 +72,9 @@ private:
      */
     AudioParameter<float> frequency;
 
+    /**
+     * Output waveform.
+     */
     VirtualAnalogOscillatorWaveType waveType;
 
     /**
@@ -77,10 +87,39 @@ private:
      */
     float lastParabolicSample;
 
+    /**
+     * Buffer used to store the modulator signal.
+     * This signal is used to modulate the pitch of
+     * the oscillator.
+     */
+    // TODO: implement pitch modulation
+    AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &modulator;
+
+    /**
+     * Amount of pitch modulation.
+     */
+    AudioParameter<float> modulationIntensity;
+
+    /**
+     * Modulator with constant 0 values used as default.
+     */
+    static AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> defaultNullModulator;
+
+    /**
+     * Method used to render a sawtooth wave based on
+     * differentiation of a parabolic waveform.
+     *
+     * @param buffer output
+     */
     void processSawDpw(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer);
 
+    /**
+     * Method used to render a sine wave based
+     * on a lookup table
+     *
+     * @param buffer output
+     */
     void processSine(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer);
-
 
 };
 

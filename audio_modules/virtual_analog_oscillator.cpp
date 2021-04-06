@@ -1,15 +1,17 @@
 
 #include "virtual_analog_oscillator.h"
-#include "../drivers/stm32f407vg_discovery/audio.h"
+#include "../drivers/common/audio.h"
 #include "../audio/audio_buffer.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_processor.h"
 #include "../audio/audio_math.h"
 #include "lookup_tables.h"
 
+// default modulator
+AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> VirtualAnalogOscillator::defaultNullModulator;
 
 void VirtualAnalogOscillator::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
-    if (waveType == VirtualAnalogOscillatorWaveType::SAW_DPW) {
+    if (waveType == VirtualAnalogOscillatorWaveType::SAW) {
         processSawDpw(buffer);
     } else if (waveType == VirtualAnalogOscillatorWaveType::SINE)
         processSine(buffer);
@@ -58,6 +60,7 @@ void VirtualAnalogOscillator::processSine(AudioBuffer<float, 1, AUDIO_DRIVER_BUF
     float *p = buffer.getWritePointer(0);
     float interpolatedFrequency;
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
+
         // frequency update
         interpolatedFrequency = frequency.getInterpolatedValue();
         frequency.updateSampleCount(1);

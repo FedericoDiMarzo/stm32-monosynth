@@ -3,7 +3,7 @@
 #ifndef STM32_MONOSYNTH_MONO_SYNTH_H
 #define STM32_MONOSYNTH_MONO_SYNTH_H
 
-#include "../drivers/stm32f407vg_discovery/audio.h"
+#include "../drivers/common/audio.h"
 #include "../audio/audio_processor.h"
 #include "../audio/audio_buffer.h"
 #include "../audio_modules/virtual_analog_oscillator.h"
@@ -17,10 +17,14 @@
  */
 class MonoSynth : public Synthesizer {
 public:
+
     /**
      * Constructor.
+     *
+     * @param audioDriver
      */
-    MonoSynth() :
+    MonoSynth(AudioDriver &audioDriver) :
+            Synthesizer(audioDriver),
             oscillator(*this),
             amplifierEnvelope(*this),
             normalizedVelocity(0) {};
