@@ -6,6 +6,8 @@
 #include "drivers/double_encoder.h"
 #include "audio/audio_buffer.h"
 #include "audio_processors/mono_synth.h"
+#include "audio_modules/envelope.h"
+#include "audio_modules/lowpass_filter_1p.h"
 #include "drivers/ssd1306.h"
 #include "drivers/button.h"
 #include "drivers/stm32f407vg_discovery/cs43l22dac.h"
@@ -65,8 +67,8 @@ DoubleEncoder doubleEncoder4(DoubleEncoder4Timer, DoubleEncoder4PortEnc,
                              DoubleEncoder4PinAEnc, DoubleEncoder4PinBEnc,
                              DoubleEncoder4PortBut, DoubleEncoder4PinBut);
 
-std::vector<Midi::MidiMessage> midiMessagesFromNoteValues(uint8_t *noteArray, size_t size) {
-    std::vector<Midi::MidiMessage> midiQueue;
+std::vector <Midi::MidiMessage> midiMessagesFromNoteValues(uint8_t *noteArray, size_t size) {
+    std::vector <Midi::MidiMessage> midiQueue;
     for (size_t i = 0; i < size; i++) {
         midiQueue.push_back(Midi::MidiMessage({noteArray[i], 100}, Midi::MidiMessageType::NOTE_ON));
         midiQueue.push_back(Midi::MidiMessage({noteArray[i], 100}, Midi::MidiMessageType::NOTE_OFF));
@@ -78,13 +80,11 @@ std::vector<Midi::MidiMessage> midiMessagesFromNoteValues(uint8_t *noteArray, si
  * Thread function for handling the hardware inputs.
  */
 void hardwareInterfaceThreadFunc() {
-    std::array < DoubleEncoder *, 4 > encoders =
-            {&doubleEncoder1, &doubleEncoder2, &doubleEncoder3, &doubleEncoder4};
-    float sensitivity = -0.5f; // TODO: revert the hardware connections
-    for (auto enc : encoders) {
-        enc->setSensitivity(sensitivity);
-    }
-    encoders[0]->setValue(0.5f);
+    std::array < DoubleEncoder * , 4 > encoders =
+                                           {&doubleEncoder1, &doubleEncoder2, &doubleEncoder3, &doubleEncoder4};
+    for (auto enc : encoders) enc->setSensitivity(EncoderSensitivity);
+
+    encoders[0]->setPressedValue(0.5f);
 
     volatile float noteChangeTime = 600.0f;
     volatile float glideTime = 0.005f;
@@ -92,29 +92,37 @@ void hardwareInterfaceThreadFunc() {
 
     volatile float attackTime = 0.01f;
     volatile float decayTime = 0.1f;
-    volatile float sustain = 0.8f;
+    volatile float sustain = 0.2f;
     volatile float releaseTime = 0.1f;
-    Envelope& ampEnvelope = monoSynth.getAmplifierEnvelope();
+
+    volatile float lowpassCutoff = 3000.0f;
+    Envelope &ampEnvelope = monoSynth.getAmplifierEnvelope();
+    LowpassFilter1P &lowpassFilter = monoSynth.getLowpassFilter();
+
 
     // encoder loop
     while (true) {
 
-        size_t noteSize = sizeof(midiNotesValuesSimpleMelody)/sizeof(*midiNotesValuesSimpleMelody);
-        std::vector<Midi::MidiMessage> midiQueue =
+        size_t noteSize = sizeof(midiNotesValuesSimpleMelody) / sizeof(*midiNotesValuesSimpleMelody);
+        std::vector <Midi::MidiMessage> midiQueue =
                 midiMessagesFromNoteValues(midiNotesValuesSimpleMelody, noteSize);
 
         for (auto midiMsg : midiQueue) {
             for (auto enc : encoders) enc->update(); // updating the encoder state
+            // getting values from the encoders
+            noteChangeTime = AudioMath::linearMap(encoders[0]->getPressedValue(), 0.0f, 1.0f, 600.0f, 100.0f);
             attackTime = encoders[0]->getValue();
             decayTime = encoders[1]->getValue();
-            sustain = encoders[2]->getValue();
-            releaseTime = encoders[3]->getValue();
+            releaseTime = encoders[2]->getValue();
+            lowpassCutoff = encoders[3]->getValue();
             {
                 miosix::FastMutex mutex;
-//                ampEnvelope.setAttack(attackTime);
-//                ampEnvelope.setDecay(decayTime);
-//                ampEnvelope.setSustain(sustain);
-//                ampEnvelope.setRelease(releaseTime);
+                ampEnvelope.setAttack(attackTime);
+                ampEnvelope.setDecay(decayTime);
+                ampEnvelope.setSustain(sustain);
+                ampEnvelope.setRelease(releaseTime);
+
+                lowpassFilter.setCutoff(lowpassCutoff);
 
                 monoSynth.processMidi(midiMsg);
             }
