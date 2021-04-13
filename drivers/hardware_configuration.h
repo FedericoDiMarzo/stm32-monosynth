@@ -12,13 +12,16 @@
 
 // Buttons
 #define Button1Port GPIOA
-#define Button1Pin 9
+#define Button1Pin 3
 #define Button2Port GPIOA
-#define Button2Pin 9
+#define Button2Pin 5
 #define Button3Port GPIOA
-#define Button3Pin 9
-#define Button4Port GPIOA
-#define Button4Pin 9
+#define Button3Pin 7
+#define Button4Port GPIOC
+#define Button4Pin 5
+
+// Encoders
+#define EncoderSensitivity 0.5f
 
 // Encoder1
 #define Encoder1Port GPIOA
@@ -45,35 +48,35 @@
 #define Encoder4Timer TIM4
 
 // DoubleEncoder1
-#define DoubleEncoder1PortEnc GPIOA
-#define DoubleEncoder1PinAEnc 0
-#define DoubleEncoder1PinBEnc 1
-#define DoubleEncoder1PortBut GPIOA
-#define DoubleEncoder1PinBut 9
-#define DoubleEncoder1Timer TIM2
+#define DoubleEncoder1PortEnc Encoder1Port
+#define DoubleEncoder1PinAEnc Encoder1PinA
+#define DoubleEncoder1PinBEnc Encoder1PinB
+#define DoubleEncoder1PortBut Button1Port
+#define DoubleEncoder1PinBut Button1Pin
+#define DoubleEncoder1Timer Encoder1Timer
 
 // DoubleEncoder2
-#define DoubleEncoder2PortEnc GPIOE
-#define DoubleEncoder2PinAEnc 9
-#define DoubleEncoder2PinBEnc 11
-#define DoubleEncoder2PortBut GPIOA
-#define DoubleEncoder2PinBut 9
-#define DoubleEncoder2Timer TIM1
+#define DoubleEncoder2PortEnc Encoder2Port
+#define DoubleEncoder2PinAEnc Encoder2PinA
+#define DoubleEncoder2PinBEnc Encoder2PinB
+#define DoubleEncoder2PortBut Button2Port
+#define DoubleEncoder2PinBut Button2Pin
+#define DoubleEncoder2Timer Encoder2Timer
 
 // DoubleEncoder3
-#define DoubleEncoder3PortEnc GPIOB
-#define DoubleEncoder3PinAEnc 5
-#define DoubleEncoder3PinBEnc 4
-#define DoubleEncoder3PortBut GPIOA
-#define DoubleEncoder3PinBut 9
-#define DoubleEncoder3Timer TIM3
+#define DoubleEncoder3PortEnc Encoder3Port
+#define DoubleEncoder3PinAEnc Encoder3PinA
+#define DoubleEncoder3PinBEnc Encoder3PinB
+#define DoubleEncoder3PortBut Button3Port
+#define DoubleEncoder3PinBut Button3Pin
+#define DoubleEncoder3Timer Encoder3Timer
 
 // DoubleEncoder4
-#define DoubleEncoder4PortEnc GPIOD
-#define DoubleEncoder4PinAEnc 12
-#define DoubleEncoder4PinBEnc 13
-#define DoubleEncoder4PortBut GPIOA
-#define DoubleEncoder4PinBut 9
-#define DoubleEncoder4Timer TIM4
+#define DoubleEncoder4PortEnc Encoder4Port
+#define DoubleEncoder4PinAEnc Encoder4PinA
+#define DoubleEncoder4PinBEnc Encoder4PinB
+#define DoubleEncoder4PortBut Button4Port
+#define DoubleEncoder4PinBut Button4Pin
+#define DoubleEncoder4Timer Encoder4Timer
 
 #endif //STM32_MONOSYNTH_HARDWARE_CONFIGURATION_H
