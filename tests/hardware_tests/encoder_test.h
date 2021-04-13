@@ -15,11 +15,10 @@ void encoderTest() {
     Encoder encoder3(Encoder3Timer, Encoder3Port, Encoder3PinA, Encoder3PinB);
     Encoder encoder4(Encoder4Timer, Encoder4Port, Encoder4PinA, Encoder4PinB);
 
-    float sensitivity = 0.5;
-    encoder1.setSensitivity(sensitivity);
-    encoder2.setSensitivity(sensitivity);
-    encoder3.setSensitivity(sensitivity);
-    encoder4.setSensitivity(sensitivity);
+    encoder1.setSensitivity(EncoderSensitivity);
+    encoder2.setSensitivity(EncoderSensitivity);
+    encoder3.setSensitivity(EncoderSensitivity);
+    encoder4.setSensitivity(EncoderSensitivity);
 
     volatile float value1;
     volatile float value2;

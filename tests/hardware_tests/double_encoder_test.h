@@ -23,9 +23,10 @@ void doubleEncoderTest() {
                                  DoubleEncoder4PinAEnc, DoubleEncoder4PinBEnc,
                                  DoubleEncoder4PortBut, DoubleEncoder4PinBut);
 
-
-    float sensitivity = 0.5;
-    doubleEncoder1.setSensitivity(sensitivity);
+    doubleEncoder1.setSensitivity(EncoderSensitivity);
+    doubleEncoder2.setSensitivity(EncoderSensitivity);
+    doubleEncoder3.setSensitivity(EncoderSensitivity);
+    doubleEncoder4.setSensitivity(EncoderSensitivity);
 
     volatile float value1;
     volatile float value2;
