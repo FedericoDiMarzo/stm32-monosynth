@@ -8,27 +8,35 @@
 
 
 /**
- * One pole ladder low pass filter  based on TPT discretization (IIR design).
+ * One pole low pass IIR filter based on TPT discretization.
  *
  * Reference: Chapter 5 of "The art of VA filter design" by Vadim Zavalishin.
  */
 // TODO: testing
-class LadderLPF1P : public ControlRate<1> {
+class LowpassFilter1P : public ControlRateAudioModule<1> {
 public:
-    LadderLPF1P(AudioProcessor& audioProcessor) :
-            ControlRate<1>(audioProcessor, 16),
-            cutoffFrequency(3000),
-            state(0),
-            G(0) {}; // TODO: check init values correctness
+    LowpassFilter1P(AudioProcessor &audioProcessor) :
+            ControlRateAudioModule<1>(audioProcessor, 16),
+            cutoffFrequency(3000.0f),
+            state(0.0f) {};
 
-    void process(AudioBuffer<float, CHANNEL_NUM, AUDIO_DRIVER_BUFFER_SIZE> &buffer) override;
+    void process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) override;
 
     /**
      * Sets the cutoff frequency parameter.
+     * The input is clipped between 20hz and 20Khz.
      *
      * @param frequency new cutoff frequency
      */
     void setCutoffFrequency(float frequency);
+
+    /**
+     * Sets the cutoff frequency parameter mapping the
+     * input in a logarithmic scale.
+     *
+     * @param normalizedValue input between 0 and 1 mapped to the cutoff frequency
+     */
+    void setCutoff(float normalizedValue);
 
 
 private:
@@ -46,13 +54,6 @@ private:
      * State variable, used to store the last sample of the filter input.
      */
     float state;
-
-    /**
-     * Gain parameter of the filter equation.
-     *
-     * G = g/(1+g)
-     */
-    float G;
 
 };
 
