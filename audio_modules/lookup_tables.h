@@ -7,6 +7,8 @@
 #include <cmath>
 
 #define LUT_TABLE_RESOLUTION 256
+#define AUDIOMATH_LOG20 2.995732273553991f
+#define AUDIOMATH_LOG20000 9.903487552536127
 
 /**
  * This header defines various specific lookup tables.
@@ -15,16 +17,18 @@ namespace AudioMath {
     /**
      * Sine function.
      */
-    LookupTable<LUT_TABLE_RESOLUTION> sineLut([](float x) { return std::sin(x); },
-                                              0.0f, 2.0f * M_PI,
-                                              LookupTableEdges::PERIODIC);
+    extern LookupTable<LUT_TABLE_RESOLUTION> sineLut;
 
     /**
      * Ramp function, periodic between 0 and 1.
      */
-    LookupTable<LUT_TABLE_RESOLUTION> rampLut([](float x) {return x;},
-                                              0.0f, 1.0f,
-                                              LookupTableEdges::PERIODIC);
+    extern LookupTable<LUT_TABLE_RESOLUTION> rampLut;
+
+    /**
+     * Exponential function. The input is bounded between log20 and log20000.
+     * Useful to obtain a logarithmic potentiometer.
+     */
+    extern LookupTable<LUT_TABLE_RESOLUTION> expLut;
 }
 
 #endif //STM32_MONOSYNTH_LOOKUP_TABLES_H
