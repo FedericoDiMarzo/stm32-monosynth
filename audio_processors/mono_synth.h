@@ -7,6 +7,7 @@
 #include "../audio/audio_processor.h"
 #include "../audio/audio_buffer.h"
 #include "../audio_modules/virtual_analog_oscillator.h"
+#include "../audio_modules/lowpass_filter_1p.h"
 #include "../audio_modules/envelope.h"
 #include "synthesizer.h"
 #include "../midi/midi.h"
@@ -25,6 +26,7 @@ public:
      */
     MonoSynth(AudioDriver &audioDriver) :
             Synthesizer(audioDriver),
+            lowpassFilter(*this),
             oscillator(*this),
             amplifierEnvelope(*this),
             normalizedVelocity(0) {};
@@ -32,9 +34,16 @@ public:
     void process() override;
 
     /**
-     * Getter for amplifierEnvelope attribute.
+     * Gets the lowpass filter.
      *
-     * @return amplifierEnvelope
+     * @return lowpass filter audio module
+     */
+    inline LowpassFilter1P &getLowpassFilter() { return lowpassFilter; };
+
+    /**
+     * Gets the amplifier envelope
+     *
+     * @return envelope audio module
      */
     inline Envelope &getAmplifierEnvelope() { return amplifierEnvelope; };
 
@@ -52,6 +61,11 @@ private:
      * Oscillator audio module.
      */
     VirtualAnalogOscillator oscillator;
+
+    /**
+     * Low pass filter.
+     */
+    LowpassFilter1P lowpassFilter;
 
     /**
      * Envelope for the output amplifier.

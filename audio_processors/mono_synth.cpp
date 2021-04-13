@@ -7,6 +7,7 @@
 
 void MonoSynth::process() {
     oscillator.process(oscillatorBuffer);
+    lowpassFilter.process(oscillatorBuffer);
     amplifierEnvelope.process(amplifierEnvelopeBuffer);
     oscillatorBuffer.multiply(amplifierEnvelopeBuffer);
     oscillatorBuffer.applyGain(normalizedVelocity);
