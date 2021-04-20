@@ -7,7 +7,8 @@
 void LowpassFilter1P::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     float *p = buffer.getWritePointer(0);
     float sampleRate = getSampleRate();
-    float v; // integrator gain output
+    float g; // integrator gain
+    float v; // integrator input after gain
 
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
 
@@ -28,10 +29,3 @@ void LowpassFilter1P::setCutoffFrequency(float frequency) {
     cutoffFrequency.setValue(frequency);
 }
 
-void LowpassFilter1P::setCutoff(float normalizedValue) {
-    normalizedValue = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
-    // implements a logarithmic potentiometer with values between 20 and 20k
-    // TODO: move to AudioMath
-    setCutoffFrequency(AudioMath::expLut(
-            AUDIOMATH_LOG20 + normalizedValue * (AUDIOMATH_LOG20000 - AUDIOMATH_LOG20)));
-}
