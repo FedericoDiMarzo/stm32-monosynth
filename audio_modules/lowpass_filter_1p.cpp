@@ -12,9 +12,8 @@ void LowpassFilter1P::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &b
 
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
 
-        // cutoff frequency update on control rate
-        if (isControlRateSample(i))
-            cutoffFrequency.updateSampleCount(getControlRateSampleNumber());
+        // cutoff frequency parameter update
+        cutoffFrequency.updateSampleCount(1);
 
         // processing (pag.77 of "The art of VA filter design")
         g = M_PI * cutoffFrequency.getInterpolatedValue() / sampleRate;
