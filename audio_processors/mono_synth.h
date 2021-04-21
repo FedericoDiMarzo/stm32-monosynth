@@ -8,6 +8,7 @@
 #include "../audio/audio_buffer.h"
 #include "../audio_modules/virtual_analog_oscillator.h"
 #include "../audio_modules/lowpass_filter_1p.h"
+#include "../audio_modules/lowpass_filter_ladder_4p.h"
 #include "../audio_modules/envelope.h"
 #include "synthesizer.h"
 #include "../midi/midi.h"
@@ -26,10 +27,13 @@ public:
      */
     MonoSynth(AudioDriver &audioDriver) :
             Synthesizer(audioDriver),
-            lowpassFilter(*this),
             oscillator(*this),
+            lowpassFilter(*this),
             amplifierEnvelope(*this),
-            normalizedVelocity(0) {};
+            normalizedVelocity(1.0f),
+            baseCutoffNormalizedFrequency(1.0f),
+            lastMidiNote(50),
+            filterKeyTracking(1.0f) {};
 
     void process() override;
 
@@ -38,7 +42,7 @@ public:
      *
      * @return lowpass filter audio module
      */
-    inline LowpassFilter1P &getLowpassFilter() { return lowpassFilter; };
+    inline LowpassFilterLadder4p &getLowpassFilter() { return lowpassFilter; };
 
     /**
      * Gets the amplifier envelope
@@ -54,6 +58,8 @@ public:
      */
     void setGlide(float glideTime);
 
+    void setFilterKeyTracking(float normalizedValue);
+
 
 private:
 
@@ -65,7 +71,7 @@ private:
     /**
      * Low pass filter.
      */
-    LowpassFilter1P lowpassFilter;
+    LowpassFilterLadder4p lowpassFilter;
 
     /**
      * Envelope for the output amplifier.
@@ -77,6 +83,23 @@ private:
      * velocity of a noteOn.
      */
     float normalizedVelocity;
+
+    /**
+     * Base cutoff frequency in a normalized range (between 0 and 1)
+     * used as a base value before the filter keytracking.
+     */
+    float baseCutoffNormalizedFrequency;
+
+    /**
+     * Last midi note value played.
+     */
+    uint8_t lastMidiNote;
+
+    /**
+     * Intensity of the note tracking for
+     * the filter cutoff. Values between 0 and 1.
+     */
+    float filterKeyTracking;
 
     /**
      * AudioBuffer used to render the VA oscillator.
@@ -108,6 +131,21 @@ private:
     void noteOn(Midi::Note note) override;
 
     void noteOff(Midi::Note note) override;
+
+    /**
+     * Gets the normalized value (between 0 and 1) of the
+     * filter cutoff after the keytrack is applied.
+     * @return
+     */
+    float getKeytrackCutoff(uint8_t midiNote);
+
+    /**
+     * Sets the cutoff of the lowpass filter considering
+     * the keytracking.
+     *
+     * @param normalizedValue cutoff value between 0 and 1
+     */
+    void setFilterCutoff(float normalizedValue);
 
 };
 
