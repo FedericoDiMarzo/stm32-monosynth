@@ -36,13 +36,7 @@ public:
             phase(0.5f),
             lastParabolicSample(0.0f),
             modulator(modulator),
-            modulationIntensity(0.0f) {
-
-        // TODO: random seed initialization
-        // TODO: random phase initialization
-        // random phase initialization
-//        phase = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    };
+            modulationIntensity(0.0f) {};
 
     /**
      * Sets the frequency of the oscillator.
