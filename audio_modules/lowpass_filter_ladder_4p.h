@@ -6,7 +6,7 @@
 #include "filter.h"
 #include <array>
 
-#define LOWPASS_FILTER_LADDER_4P_MAX_RESONANCE 3.5f
+#define LOWPASS_FILTER_LADDER_4P_MAX_RESONANCE 3.2f
 
 class LowpassFilterLadder4p : public AudioModule<1>, public Filter {
 public:

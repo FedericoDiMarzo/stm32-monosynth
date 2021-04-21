@@ -31,7 +31,7 @@ void LowpassFilterLadder4p::process(AudioBuffer<float, 1, 256> &buffer) {
             u = v + states[state_index];
             states[state_index] = u + v;
         }
-        u *= 1 + resonanceInterpolatedValue; // resonance gain compensation
+//        u *= 1 + resonanceInterpolatedValue * 0.25f; // resonance gain compensation
         p[i] = u; // writing to the buffer
     }
 }
