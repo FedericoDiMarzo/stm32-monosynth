@@ -29,11 +29,15 @@ public:
             Synthesizer(audioDriver),
             oscillator(*this),
             lowpassFilter(*this),
-            amplifierEnvelope(*this),
+            envelope(*this),
             normalizedVelocity(1.0f),
             baseCutoffNormalizedFrequency(1.0f),
             lastMidiNote(50),
-            filterKeyTracking(0.5f) {};
+            filterKeyTracking(0.5f) {
+
+        // modulating the filter with the envelope
+        lowpassFilter.setCutoffModulatorPtr(envelopeBuffer.getReadPointer(0));
+    };
 
     void process() override;
 
@@ -45,11 +49,11 @@ public:
     inline LowpassFilterLadder4p &getLowpassFilter() { return lowpassFilter; };
 
     /**
-     * Gets the amplifier envelope
+     * Gets the envelope
      *
      * @return envelope audio module
      */
-    inline Envelope &getAmplifierEnvelope() { return amplifierEnvelope; };
+    inline Envelope &getEnvelope() { return envelope; };
 
     /**
      * Sets the cutoff of the lowpass filter considering
@@ -73,7 +77,21 @@ public:
      */
     void setGlide(float glideTime);
 
+    /**
+     * Sets the keytracking amount for the filter cutoff.
+     *
+     * @param normalizedValue value between 0 and 1
+     */
     void setFilterKeyTracking(float normalizedValue);
+
+    /**
+     * Sets the envelope amount for the filter cutoff.
+     *
+     * @param normalizedValue value between 0 and 1
+     */
+    inline void setFilterCutoffEnvelopeAmt(float normalizedValue) {
+        lowpassFilter.setCutoffModulationAmount(normalizedValue);
+    };
 
 
 private:
@@ -89,12 +107,12 @@ private:
     LowpassFilterLadder4p lowpassFilter;
 
     /**
-     * Envelope for the output amplifier.
+     * Envelope for the output amplifier and for the filter cutoff.
      */
-    Envelope amplifierEnvelope;
+    Envelope envelope;
 
     /**
-     * Amplifier multiplier based on the
+     * Gain multiplier based on the
      * velocity of a noteOn.
      */
     float normalizedVelocity;
@@ -122,9 +140,9 @@ private:
     AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> oscillatorBuffer;
 
     /**
-     * AudioBuffer used to render the amplifier envelope.
+     * AudioBuffer used to render the envelope.
      */
-    AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> amplifierEnvelopeBuffer;
+    AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> envelopeBuffer;
 
     /**
     * Triggers the amplitude envelope.
@@ -141,7 +159,7 @@ private:
      *
      * @param f note frequency
      */
-    void setFrequency(float f);
+    void setOscillatorFrequency(float f);
 
     void noteOn(Midi::Note note) override;
 

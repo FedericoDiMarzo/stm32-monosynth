@@ -8,15 +8,15 @@
 void MonoSynth::process() {
     oscillator.process(oscillatorBuffer);
     lowpassFilter.process(oscillatorBuffer);
-    amplifierEnvelope.process(amplifierEnvelopeBuffer);
-    oscillatorBuffer.multiply(amplifierEnvelopeBuffer);
+    envelope.process(envelopeBuffer);
+    oscillatorBuffer.multiply(envelopeBuffer);
     oscillatorBuffer.applyGain(normalizedVelocity);
     getBuffer().copyOnChannel(oscillatorBuffer, 0);
     getBuffer().copyOnChannel(oscillatorBuffer, 1);
 
 }
 
-void MonoSynth::setFrequency(float f) {
+void MonoSynth::setOscillatorFrequency(float f) {
     if (f < 0.0f) return;
     oscillator.setFrequency(f);
 }
@@ -43,7 +43,7 @@ float MonoSynth::getKeytrackCutoff(uint8_t midiNote) {
 void MonoSynth::noteOn(Midi::Note note) {
     // TODO: test velocity
     lastMidiNote = note.getMidiNote();
-    setFrequency(Midi::midi2freq(lastMidiNote));
+    setOscillatorFrequency(Midi::midi2freq(lastMidiNote));
 
     // velocity
     normalizedVelocity = AudioMath::linearMap(static_cast<float>(note.getVelocity()),
@@ -60,11 +60,11 @@ void MonoSynth::noteOff(Midi::Note note) {
 }
 
 void MonoSynth::triggerEnvelopeOn() {
-    amplifierEnvelope.triggerOn();
+    envelope.triggerOn();
 }
 
 void MonoSynth::triggerEnvelopeOff() {
-    amplifierEnvelope.triggerOff();
+    envelope.triggerOff();
 }
 
 
