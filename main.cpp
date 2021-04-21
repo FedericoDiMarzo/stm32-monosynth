@@ -36,7 +36,7 @@
 #ifndef TESTING_HARDWARE
 
 // The audio driver
-AudioDriver audioDriver(SampleRate::_44100Hz);
+AudioDriver audioDriver;
 
 // The synth engine
 MonoSynth monoSynth(audioDriver);
@@ -152,7 +152,6 @@ void synthThreadFunc() {
 
 int main() {
     // initializing the audio driver
-    audioDriver.getBuffer();
     audioDriver.init();
     audioDriver.setAudioProcessable(monoSynth);
 
