@@ -7,7 +7,6 @@
 #include "../audio/audio_module.h"
 #include "../audio/audio_processor.h"
 #include "../audio/audio_parameter.h"
-#include "control_rate_audio_module.h"
 #include <cstdlib>
 #include <cmath>
 
@@ -24,19 +23,16 @@ enum class VirtualAnalogOscillatorWaveType {
     TRIANGLE, // TODO: implement triangle wave
 };
 
-class VirtualAnalogOscillator : public ControlRateAudioModule<1> {
+class VirtualAnalogOscillator : public AudioModule<1> {
 public:
 
-    VirtualAnalogOscillator(AudioProcessor &audioProcessor,
-                            AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &modulator = defaultNullModulator)
+    VirtualAnalogOscillator(AudioProcessor &audioProcessor)
             :
-            ControlRateAudioModule<1>(audioProcessor, 16),
+            AudioModule<1>(audioProcessor),
             frequency(100.0f),
             waveType(VirtualAnalogOscillatorWaveType::SAW),
             phase(0.5f),
-            lastParabolicSample(0.0f),
-            modulator(modulator),
-            modulationIntensity(0.0f) {};
+            lastParabolicSample(0.0f) {};
 
     /**
      * Sets the frequency of the oscillator.
@@ -82,19 +78,6 @@ private:
      * Buffer used by the saw DPW algorithm.
      */
     float lastParabolicSample;
-
-    /**
-     * Buffer used to store the modulator signal.
-     * This signal is used to modulate the pitch of
-     * the oscillator.
-     */
-    // TODO: implement pitch modulation
-    AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &modulator;
-
-    /**
-     * Amount of pitch modulation.
-     */
-    AudioParameter<float> modulationIntensity;
 
     /**
      * Modulator with constant 0 values used as default.

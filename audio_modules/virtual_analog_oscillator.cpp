@@ -7,8 +7,6 @@
 #include "../audio/audio_math.h"
 #include "lookup_tables.h"
 
-// default modulator
-AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> VirtualAnalogOscillator::defaultNullModulator;
 
 void VirtualAnalogOscillator::process(AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &buffer) {
     if (waveType == VirtualAnalogOscillatorWaveType::SAW) {
