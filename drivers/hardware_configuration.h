@@ -23,7 +23,7 @@
 #define Button5Pin 5
 
 // Encoders
-#define EncoderSensitivity 0.5f
+#define EncoderSensitivity 0.3f
 
 // Encoder1
 #define Encoder1Port GPIOC
