@@ -3,7 +3,7 @@
 #define STM32_MONOSYNTH_ENVELOPE_H
 
 #include "../drivers/common/audio.h"
-#include "control_rate_audio_module.h"
+#include "control_rate.h"
 #include "../audio/audio_module.h"
 #include "../audio/audio_buffer.h"
 #include "../audio/audio_parameter.h"
