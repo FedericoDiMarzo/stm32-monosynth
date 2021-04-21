@@ -82,14 +82,18 @@ void hardwareInterfaceThreadFunc() {
     encoders[1]->setValue(0.0f); // glideTime
     encoders[1]->setPressedValue(0.5f); // noteChangeTime
     encoders[2]->setValue(1.0f); // lowpassCutoff
+    encoders[2]->setPressedValue(0.0f); // filter cutoff envelope amount
     encoders[3]->setValue(0.0f); // lowpassResonance
     encoders[4]->setValue(0.5f); // envelope releaseTime
+    encoders[4]->setPressedValue(0.0f); // envelope attackTime
 
     // synth parameters
     volatile float glideTime;
     volatile float detune;
+    volatile float attackTime;
     volatile float releaseTime;
     volatile float lowpassCutoff;
+    volatile float filterCutoffModAmt;
     volatile float lowpassResonance;
 
     // encoder loop
@@ -99,7 +103,7 @@ void hardwareInterfaceThreadFunc() {
             miosix::FastMutex mutex;
 
             // synth audio modules
-            Envelope &ampEnvelope = monoSynth.getAmplifierEnvelope();
+            Envelope &ampEnvelope = monoSynth.getEnvelope();
             LowpassFilterLadder4p &lowpassFilter = monoSynth.getLowpassFilter();
 
             for (auto enc : encoders) enc->update(); // updating the encoder state
@@ -109,34 +113,37 @@ void hardwareInterfaceThreadFunc() {
             glideTime = encoders[1]->getValue();
 //            lowpassCutoff = AudioMath::linearMap(encoders[2]->getValue(), 0.0f, 1.0f, 0.0f, 0.8f);
             lowpassCutoff = encoders[2]->getValue();
+            filterCutoffModAmt = encoders[2]->getPressedValue();
             lowpassResonance = encoders[3]->getValue();
             releaseTime = encoders[4]->getValue();
+            attackTime = encoders[4]->getPressedValue();
 
             // setting the synth
 //            monoSynth.setGlide(glideTime); // TODO: this parameter can't be updated so fast
+            ampEnvelope.setAttack(attackTime);
             ampEnvelope.setRelease(releaseTime);
             monoSynth.setFilterCutoff(lowpassCutoff);
+            monoSynth.setFilterCutoffEnvelopeAmt(filterCutoffModAmt);
             monoSynth.setFilterResonance(lowpassResonance);
         }
-        miosix::Thread::sleep(10);
+        miosix::Thread::sleep(20);
 
     }
 }
 
 void synthThreadFunc() {
     // test midi queue
-    size_t noteSize = sizeof(midiNotesValuesSimpleMelody3) / sizeof(*midiNotesValuesSimpleMelody3);
+    size_t noteSize = sizeof(midiNotesValuesSimpleMelody4) / sizeof(*midiNotesValuesSimpleMelody4);
     std::vector <Midi::MidiMessage> midiQueue =
-            midiMessagesFromNoteValues(midiNotesValuesSimpleMelody3, noteSize);
+            midiMessagesFromNoteValues(midiNotesValuesSimpleMelody4, noteSize);
     float noteChangeTimeLocal;
 
     // synth audio modules
     {
         miosix::FastMutex mutex;
-        Envelope &ampEnvelope = monoSynth.getAmplifierEnvelope();
+        Envelope &ampEnvelope = monoSynth.getEnvelope();
         LowpassFilterLadder4p &lowpassFilter = monoSynth.getLowpassFilter();
-        monoSynth.setGlide(0.4f);
-        ampEnvelope.setAttack(0.005f);
+        monoSynth.setGlide(0.005f);
         ampEnvelope.setSustain(1.0f);
         ampEnvelope.setDecay(0.2f);
     }
