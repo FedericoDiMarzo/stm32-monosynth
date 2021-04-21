@@ -28,6 +28,7 @@ audio_modules/virtual_analog_oscillator.cpp \
 audio_modules/lookup_tables.cpp \
 audio_modules/envelope.cpp \
 audio_modules/lowpass_filter_1p.cpp \
+audio_modules/lowpass_filter_ladder_4p.cpp \
 audio_processors/synthesizer.cpp \
 audio_processors/mono_synth.cpp \
 drivers/stm32f407vg_discovery/core_util_stm32f407vg.cpp \
