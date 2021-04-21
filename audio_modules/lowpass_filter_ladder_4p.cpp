@@ -12,16 +12,27 @@ void LowpassFilterLadder4p::process(AudioBuffer<float, 1, 256> &buffer) {
     float v; // input of the integrators after the gain
     float G; // paramenter G of the filter
     float S; // parameter S of the filter
+    float fc; // instantaneous cutoff frequency
+    float cutoffModulatorValue; // cutoff modulator instantaneous value
 
     for (uint32_t i = 0; i < buffer.getBufferLength(); i++) {
 
-        // cutoff frequency and resonance update on control rate
+        // getting the values from the parameters
+        resonanceInterpolatedValue = resonance.getValue();
+        fc = cutoffFrequency.getInterpolatedValue();
+
+        // modulations
+        cutoffModulatorValue = (cutoffModulatorPtr != nullptr) ? cutoffModulatorPtr[i] : 0; // TODO: remove this branch
+        fc += cutoffModulatorValue * cutoffModulationAmount.getInterpolatedValue();
+        fc = AudioMath::clip(fc, 0.0f, 20000.0f);
+
+        // cutoff frequency and resonance update
         cutoffFrequency.updateSampleCount(1);
         resonance.updateSampleCount(1);
-        resonanceInterpolatedValue = resonance.getValue();
+        cutoffModulationAmount.updateSampleCount(1);
 
         // processing
-        g = M_PI * cutoffFrequency.getInterpolatedValue() / sampleRate;
+        g = M_PI * fc / sampleRate;
         G = g * g * g * g;
         S = g * g * g * states[0] + g * g * states[1] + g * states[2] + states[3];
         u = (p[i] - resonanceInterpolatedValue * S) / (1 + resonanceInterpolatedValue * G);
@@ -31,7 +42,6 @@ void LowpassFilterLadder4p::process(AudioBuffer<float, 1, 256> &buffer) {
             u = v + states[state_index];
             states[state_index] = u + v;
         }
-//        u *= 1 + resonanceInterpolatedValue * 0.25f; // resonance gain compensation
         p[i] = u; // writing to the buffer
     }
 }
@@ -47,3 +57,9 @@ void LowpassFilterLadder4p::setCutoffFrequency(float frequency) {
     frequency = AudioMath::clip(frequency, 0.0f, 20000.0f);
     cutoffFrequency.setValue(frequency);
 }
+
+void LowpassFilterLadder4p::setCutoffModulationAmount(float normalizedValue) {
+    normalizedValue = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
+    cutoffModulationAmount.setValue(logMapping(normalizedValue) - 20);
+}
+
