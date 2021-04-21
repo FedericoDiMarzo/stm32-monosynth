@@ -27,20 +27,21 @@ enum class VirtualAnalogOscillatorWaveType {
 class VirtualAnalogOscillator : public ControlRateAudioModule<1> {
 public:
 
-    VirtualAnalogOscillator(AudioProcessor& audioProcessor,
+    VirtualAnalogOscillator(AudioProcessor &audioProcessor,
                             AudioBuffer<float, 1, AUDIO_DRIVER_BUFFER_SIZE> &modulator = defaultNullModulator)
             :
             ControlRateAudioModule<1>(audioProcessor, 16),
             frequency(100.0f),
             waveType(VirtualAnalogOscillatorWaveType::SAW),
-            phase(0.0f),
+            phase(0.5f),
             lastParabolicSample(0.0f),
             modulator(modulator),
             modulationIntensity(0.0f) {
 
         // TODO: random seed initialization
+        // TODO: random phase initialization
         // random phase initialization
-        phase = static_cast <float> (rand()) / static_cast <float> (2 * M_PI);
+//        phase = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     };
 
     /**
@@ -60,6 +61,7 @@ public:
      * @param sampleRate sample frequency
      */
     void setGlide(float time, float sampleRate) {
+        time = (time < 0) ? 0 : time; // clipping negative values
         frequency.setTransitionTime(time, sampleRate);
     }
 

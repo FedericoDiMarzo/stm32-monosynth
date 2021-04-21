@@ -46,7 +46,7 @@ void VirtualAnalogOscillator::processSawDpw(AudioBuffer<float, 1, AUDIO_DRIVER_B
         lastParabolicSample = currentParabolicSample;
 
         // gain compensation
-        p[i] *= sampleRate / (4.0f * interpolatedFrequency);
+        p[i] *= sampleRate / (4 * interpolatedFrequency * (1 - interpolatedFrequency / sampleRate));
 
         // updating the phase
         phase += interpolatedFrequency / sampleRate;
