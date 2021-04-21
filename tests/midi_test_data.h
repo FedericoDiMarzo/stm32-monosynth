@@ -56,3 +56,7 @@ uint8_t midiNotesValuesSimpleMelody2[] = {
 uint8_t midiNotesValuesSimpleMelody3[] = {
         50, 53, 51, 57, 53, 53, 60, 48,
 };
+
+uint8_t midiNotesValuesSimpleMelody4[] = {
+        38, 38, 26, 36, 38, 38, 38, 50, 38, 26, 38, 50, 38, 51, 38, 48,
+};
