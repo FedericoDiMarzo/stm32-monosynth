@@ -5,6 +5,7 @@
 #include "audio_processors/mono_synth.h"
 #include "audio_modules/envelope.h"
 #include "audio_modules/lowpass_filter_1p.h"
+#include "audio_modules/lowpass_filter_ladder_4p.h"
 #include "midi/midi.h"
 #include "tests/midi_test_data.h"
 #include "tests/hardware_tests/encoder_test.h"
@@ -89,6 +90,7 @@ void hardwareInterfaceThreadFunc() {
     volatile float attackTime;
     volatile float releaseTime;
     volatile float lowpassCutoff;
+    volatile float lowpassResonance;
 
     // encoder loop
     while (true) {
@@ -98,13 +100,14 @@ void hardwareInterfaceThreadFunc() {
 
             // synth audio modules
             Envelope &ampEnvelope = monoSynth.getAmplifierEnvelope();
-            LowpassFilter1P &lowpassFilter = monoSynth.getLowpassFilter();
+            LowpassFilterLadder4p &lowpassFilter = monoSynth.getLowpassFilter();
 
             for (auto enc : encoders) enc->update(); // updating the encoder state
 
             // getting values from the encoders
             noteChangeTime = AudioMath::linearMap(encoders[1]->getPressedValue(), 0.0f, 1.0f, 600.0f, 50.0f);
-            lowpassCutoff = encoders[2]->getValue();
+            lowpassResonance = encoders[1]->getValue();
+            lowpassCutoff = AudioMath::linearMap(encoders[2]->getValue(), 0.0f, 1.0f, 0.0f, 0.8f);
             attackTime = encoders[3]->getValue();
             releaseTime = encoders[4]->getValue();
 
@@ -112,24 +115,25 @@ void hardwareInterfaceThreadFunc() {
             ampEnvelope.setAttack(attackTime);
             ampEnvelope.setRelease(releaseTime);
             lowpassFilter.setCutoff(lowpassCutoff);
+            lowpassFilter.setResonance(lowpassResonance);
         }
-        miosix::Thread::sleep(20);
+        miosix::Thread::sleep(10);
 
     }
 }
 
 void synthThreadFunc() {
     // test midi queue
-    size_t noteSize = sizeof(midiNotesValuesSimpleMelody) / sizeof(*midiNotesValuesSimpleMelody);
+    size_t noteSize = sizeof(midiNotesValuesSimpleMelody3) / sizeof(*midiNotesValuesSimpleMelody3);
     std::vector <Midi::MidiMessage> midiQueue =
-            midiMessagesFromNoteValues(midiNotesValuesSimpleMelody2, noteSize);
+            midiMessagesFromNoteValues(midiNotesValuesSimpleMelody3, noteSize);
     float noteChangeTimeLocal;
 
     // synth audio modules
     {
         miosix::FastMutex mutex;
         Envelope &ampEnvelope = monoSynth.getAmplifierEnvelope();
-        LowpassFilter1P &lowpassFilter = monoSynth.getLowpassFilter();
+        LowpassFilterLadder4p &lowpassFilter = monoSynth.getLowpassFilter();
         ampEnvelope.setSustain(1.0f);
         ampEnvelope.setDecay(0.2f);
     }
@@ -158,8 +162,8 @@ int main() {
 
     // starting the audio driver (blocking function)
     audioDriver.start();
-    hardwareInterfaceThread.join();
-    synthThread.join();
+//    hardwareInterfaceThread.join();
+//    synthThread.join();
 }
 
 #else // testing enabled
