@@ -25,13 +25,19 @@ void MonoSynth::setGlide(float glideTime) {
     oscillator.setGlide(glideTime, getSampleRate());
 }
 
+void MonoSynth::setFilterCutoff(float normalizedValue) {
+    baseCutoffNormalizedFrequency = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
+    lowpassFilter.setCutoff(getKeytrackCutoff(lastMidiNote));
+}
+
 void MonoSynth::setFilterKeyTracking(float normalizedValue) {
     normalizedValue = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
     filterKeyTracking = normalizedValue;
 }
 
 float MonoSynth::getKeytrackCutoff(uint8_t midiNote) {
-    return baseCutoffNormalizedFrequency * (static_cast<float>(midiNote) / 127.0f);
+    float noteScaling = (static_cast<float>(midiNote) / 127.0f);
+    return baseCutoffNormalizedFrequency * (1 + (noteScaling - 1) * filterKeyTracking);
 }
 
 void MonoSynth::noteOn(Midi::Note note) {
@@ -59,11 +65,6 @@ void MonoSynth::triggerEnvelopeOn() {
 
 void MonoSynth::triggerEnvelopeOff() {
     amplifierEnvelope.triggerOff();
-}
-
-void MonoSynth::setFilterCutoff(float normalizedValue) {
-    baseCutoffNormalizedFrequency = AudioMath::clip(normalizedValue, 0.0f, 1.0f);
-    lowpassFilter.setCutoff(getKeytrackCutoff(lastMidiNote));
 }
 
 

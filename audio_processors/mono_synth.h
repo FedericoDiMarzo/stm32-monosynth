@@ -33,7 +33,7 @@ public:
             normalizedVelocity(1.0f),
             baseCutoffNormalizedFrequency(1.0f),
             lastMidiNote(50),
-            filterKeyTracking(1.0f) {};
+            filterKeyTracking(0.5f) {};
 
     void process() override;
 
@@ -50,6 +50,21 @@ public:
      * @return envelope audio module
      */
     inline Envelope &getAmplifierEnvelope() { return amplifierEnvelope; };
+
+    /**
+     * Sets the cutoff of the lowpass filter considering
+     * the keytracking.
+     *
+     * @param normalizedValue cutoff value between 0 and 1
+     */
+    void setFilterCutoff(float normalizedValue);
+
+    /**
+     * Sets the resonance of the lowpass filter.
+     *
+     * @param normalizedValue resonance value between 0 and 1
+     */
+    inline void setFilterResonance(float normalizedValue) { lowpassFilter.setResonance(normalizedValue); };
 
     /**
      * Sets the glide time between the notes.
@@ -138,14 +153,6 @@ private:
      * @return
      */
     float getKeytrackCutoff(uint8_t midiNote);
-
-    /**
-     * Sets the cutoff of the lowpass filter considering
-     * the keytracking.
-     *
-     * @param normalizedValue cutoff value between 0 and 1
-     */
-    void setFilterCutoff(float normalizedValue);
 
 };
 
