@@ -1,16 +1,17 @@
 
 
-#ifndef STM32_MONOSYNTH_LOWPASS_FILTER_H
-#define STM32_MONOSYNTH_LOWPASS_FILTER_H
+#ifndef STM32_MONOSYNTH_FILTER_H
+#define STM32_MONOSYNTH_FILTER_H
 
 #include "lookup_tables.h"
+#include "../audio/audio_parameter.h"
 
 /**
  * Interface describing a lowpass filter.
  */
-class LowpassFilter {
+class Filter {
 public:
-    LowpassFilter() : cutoffFrequency(3000.0f) {}
+    Filter() : cutoffFrequency(3000.0f) {}
 
     /**
      * Sets the cutoff frequency parameter.
@@ -33,6 +34,13 @@ public:
                 AUDIOMATH_LOG20 + normalizedValue * (AUDIOMATH_LOG20000 - AUDIOMATH_LOG20)));
     };
 
+    /**
+     * Getter for the attribute cutoffFrequency.
+     *
+     * @return cutoff frequency audio parameter
+     */
+    inline AudioParameter<float> getCutoffFrequency() { return cutoffFrequency; };
+
 
 protected:
     /**
@@ -43,4 +51,4 @@ protected:
 };
 
 
-#endif //STM32_MONOSYNTH_LOWPASS_FILTER_H
+#endif //STM32_MONOSYNTH_FILTER_H
