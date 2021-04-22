@@ -95,4 +95,7 @@
 #define DoubleEncoder5PinBut Button5Pin
 #define DoubleEncoder5Timer Encoder5Timer
 
+// MidiIn
+#define MidiInUsartId 1
+
 #endif //STM32_MONOSYNTH_HARDWARE_CONFIGURATION_H
