@@ -74,7 +74,7 @@ namespace CoreUtil {
      * @param pin target PIN
      * @return alternate function index
      */
-    uint8_t getUsartAf(const GPIO_TypeDef *gpio, uint8 pin);
+    uint8_t getUsartAf(const GPIO_TypeDef *gpio, uint8_t pin);
 
     /**
      * This function implements an infinite loop,
