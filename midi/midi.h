@@ -204,7 +204,7 @@ namespace Midi {
          *
          * @return the CircularBuffer midi messageQueue
          */
-        inline CircularBuffer<MidiMessage, BUFFER_MAX_SIZE> getMessageQueue() { return messageQueue; };
+        inline CircularBuffer<MidiMessage, BUFFER_MAX_SIZE> &getMessageQueue() { return messageQueue; };
 
         /**
          * Masks a certain midi channel.
