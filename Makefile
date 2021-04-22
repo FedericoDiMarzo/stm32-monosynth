@@ -35,7 +35,8 @@ drivers/stm32f407vg_discovery/core_util_stm32f407vg.cpp \
 drivers/encoder.cpp \
 drivers/double_encoder.cpp \
 drivers/ssd1306.cpp \
-drivers/button.cpp
+drivers/button.cpp \
+drivers/midi_in_port.cpp
 
 
 # U8g2 library source files
