@@ -75,6 +75,20 @@ void CoreUtil::rccEnableI2c(const I2C_TypeDef *i2c) {
     }
 }
 
+void CoreUtil::rccEnableUsart(const int *usart) {
+    if (usart == USART1) {
+        RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+    } else if (usart == USART2) {
+        RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+    } else if (usart == USART3) {
+        RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
+    } else if (usart == USART6) {
+        RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
+    } else {
+        errorHandler();
+    }
+}
+
 
 uint8_t CoreUtil::getGpioTimerAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     if (pin >= 16) errorHandler();
@@ -159,7 +173,6 @@ uint8_t CoreUtil::getGpioTimerAf(const GPIO_TypeDef *gpio, uint8_t pin) {
 uint8_t CoreUtil::getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     if (pin >= 16) errorHandler();
     bool pinHasI2c = false; // fallback
-
     const uint8_t af = 4; // the AF is always the same
 
     if (gpio == GPIOA) {
@@ -192,6 +205,29 @@ uint8_t CoreUtil::getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     }
 
     // the pin has not an i2c alternate function
+    if (!pinHasI2c) errorHandler();
+    return af;
+}
+
+uint8_t CoreUtil::getUsartAf(const int *gpio, int pin) {
+    // implemented just for TX/RX
+    // TODO: complete it
+    if (pin >= 16) errorHandler();
+    bool pinHasUsart = false; // fallback
+    const uint8_t af = 7; // the AF is always the same except for USART6
+
+    if (gpio == GPIOA) {
+        if (pin == 2 || pin == 3 || pin == 9 || pin == 10)
+            pinHasUsart = true;
+    } else if (gpio == GPIOB) {
+        if (pin == 6 || pin == 7 || pin == 10 || pin == 11)
+            pinHasUsart = true;
+    } else if (gpio == GPIOC) {
+        if (pin == 10 || pin == 11)
+            pinHasUsart = true;
+    }
+
+    // the pin has not an USART alternate function
     if (!pinHasI2c) errorHandler();
     return af;
 }

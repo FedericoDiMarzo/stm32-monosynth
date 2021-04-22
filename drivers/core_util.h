@@ -40,6 +40,13 @@ namespace CoreUtil {
     void rccEnableI2c(const I2C_TypeDef *i2c);
 
     /**
+     * Enable the clock for a USART unit.
+     *
+     * @param usart USART_TypeDef pointer
+     */
+    void rccEnableUsart(const USART_TypeDef *usart);
+
+    /**
      * Gets the timer alternate function for a certain pin, just for
      * pins having a TIMxCH1/CH2 routing.
      *
@@ -58,6 +65,16 @@ namespace CoreUtil {
      * @return alternate function index
      */
     uint8_t getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin);
+
+    /**
+     * Gets the USART alternate function for a certain pin, just for
+     * pins having a USART routing.
+     *
+     * @param gpio target GPIO
+     * @param pin target PIN
+     * @return alternate function index
+     */
+    uint8_t getUsartAf(const GPIO_TypeDef *gpio, uint8 pin);
 
     /**
      * This function implements an infinite loop,
