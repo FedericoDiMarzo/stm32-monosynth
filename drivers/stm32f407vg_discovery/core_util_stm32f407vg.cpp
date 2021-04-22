@@ -75,7 +75,7 @@ void CoreUtil::rccEnableI2c(const I2C_TypeDef *i2c) {
     }
 }
 
-void CoreUtil::rccEnableUsart(const int *usart) {
+void CoreUtil::rccEnableUsart(const USART_TypeDef *usart) {
     if (usart == USART1) {
         RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
     } else if (usart == USART2) {
@@ -209,7 +209,7 @@ uint8_t CoreUtil::getGpioI2cAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     return af;
 }
 
-uint8_t CoreUtil::getUsartAf(const int *gpio, int pin) {
+uint8_t CoreUtil::getUsartAf(const GPIO_TypeDef *gpio, uint8_t pin) {
     // implemented just for TX/RX
     // TODO: complete it
     if (pin >= 16) errorHandler();
@@ -228,7 +228,7 @@ uint8_t CoreUtil::getUsartAf(const int *gpio, int pin) {
     }
 
     // the pin has not an USART alternate function
-    if (!pinHasI2c) errorHandler();
+    if (!pinHasUsart) errorHandler();
     return af;
 }
 
