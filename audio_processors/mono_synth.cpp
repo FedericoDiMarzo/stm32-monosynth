@@ -46,8 +46,9 @@ void MonoSynth::noteOn(Midi::Note note) {
     setOscillatorFrequency(Midi::midi2freq(lastMidiNote));
 
     // velocity
+    // TODO: velocity compression
     normalizedVelocity = AudioMath::linearMap(static_cast<float>(note.getVelocity()),
-                                              0.0f, 127.0f, 0.0f, 1.0f);
+                                              0.0f, 127.0f, 0.5f, 1.0f);
 
     // filter keytracking
     lowpassFilter.setCutoff(getKeytrackCutoff(lastMidiNote));
