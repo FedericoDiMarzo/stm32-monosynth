@@ -115,7 +115,7 @@ void hardwareInterfaceThreadFunc() {
             monoSynth.setFilterCutoffEnvelopeAmt(filterCutoffModAmt);
             monoSynth.setFilterResonance(lowpassResonance);
         }
-        miosix::Thread::sleep(35);
+        miosix::Thread::sleep(30);
 
     }
 }
