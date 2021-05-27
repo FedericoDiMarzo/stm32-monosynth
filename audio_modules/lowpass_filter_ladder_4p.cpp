@@ -22,7 +22,8 @@ void LowpassFilterLadder4p::process(AudioBuffer<float, 1, 256> &buffer) {
         fc = cutoffFrequency.getInterpolatedValue();
 
         // modulations
-        cutoffModulatorValue = (cutoffModulatorPtr != nullptr) ? cutoffModulatorPtr[i] : 0; // TODO: remove this branch
+//        cutoffModulatorValue = (cutoffModulatorPtr != nullptr) ? cutoffModulatorPtr[i] : 0; // TODO: remove this branch
+        cutoffModulatorValue = cutoffModulatorPtr[i];
         fc += cutoffModulatorValue * cutoffModulationAmount.getInterpolatedValue();
         fc = AudioMath::clip(fc, 0.0f, 20000.0f);
 
